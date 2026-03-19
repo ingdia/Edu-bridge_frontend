@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EDU-Bridge Frontend
+
+A Next.js 16 + React 19 + TypeScript + Tailwind v4 frontend for **EDU-Bridge** — a free education platform for public day school students in Rwanda, providing English learning, digital literacy training, and career guidance.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Demo Credentials
 
-## Learn More
+Use these accounts to log in and explore the dashboards. On the login page, click the role buttons to auto-fill the credentials.
 
-To learn more about Next.js, take a look at the following resources:
+| Role    | Email                      | Password     | Redirects to    |
+|---------|----------------------------|--------------|-----------------|
+| Student | student@edubridge.rw       | student123   | /student        |
+| Mentor  | mentor@edubridge.rw        | mentor123    | /mentor         |
+| Admin   | admin@edubridge.rw         | admin123     | /admin          |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> These are mock accounts for demo purposes only. No real authentication is implemented yet.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Icons**: Lucide React
+- **Components**: CVA (class-variance-authority) + clsx + tailwind-merge
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/          # Login, Register, Reset Password
+│   ├── (dashboard)/     # Student, Mentor, Admin dashboards
+│   ├── about/
+│   ├── problem/         # "The Challenge"
+│   ├── solution/        # "Our Approach"
+│   ├── impact/          # "Our Results"
+│   ├── contact/
+│   └── page.tsx         # Home
+├── components/
+│   ├── layout/          # Header, Footer
+│   └── ui/              # Button, Badge
+└── lib/
+    ├── api/             # mockData, client
+    ├── contexts/        # AuthContext
+    └── types/           # user, module, progress, api
+```
+
+## Color Palette
+
+| Token     | Color          | Usage                        |
+|-----------|----------------|------------------------------|
+| Primary   | emerald-700    | Buttons, links, active states |
+| Accent    | amber-500      | CTAs on dark backgrounds      |
+| Surface   | white / gray-50 | Page backgrounds             |
+| Text      | gray-900 / 500 | Headings / body              |
