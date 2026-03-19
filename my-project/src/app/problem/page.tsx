@@ -17,9 +17,9 @@ const problems = [
       'No dedicated language labs or audio resources in most public schools',
       'Teachers themselves often lack confidence in spoken English',
     ],
-    color: 'border-red-200 bg-red-50',
-    iconColor: 'bg-red-100 text-red-600',
-    statColor: 'text-red-600',
+    color: 'border-emerald-200 bg-emerald-50',
+    iconColor: 'bg-emerald-100 text-emerald-700',
+    statColor: 'text-emerald-700',
   },
   {
     icon: WifiOff,
@@ -33,9 +33,9 @@ const problems = [
       'No training in internet safety, file management, or professional digital communication',
       'Digital divide widens the gap between urban and rural students',
     ],
-    color: 'border-orange-200 bg-orange-50',
-    iconColor: 'bg-orange-100 text-orange-600',
-    statColor: 'text-orange-600',
+    color: 'border-amber-200 bg-amber-50',
+    iconColor: 'bg-amber-100 text-amber-700',
+    statColor: 'text-amber-700',
   },
   {
     icon: UserX,
@@ -49,17 +49,17 @@ const problems = [
       'No mentorship connections to professionals or university graduates',
       'University application processes are confusing and unsupported',
     ],
-    color: 'border-purple-200 bg-purple-50',
-    iconColor: 'bg-purple-100 text-purple-600',
-    statColor: 'text-purple-600',
+    color: 'border-gray-200 bg-gray-50',
+    iconColor: 'bg-gray-100 text-gray-700',
+    statColor: 'text-gray-700',
   },
 ];
 
 const stats = [
-  { value: '17%', label: 'Secondary school completion rate in rural Rwanda', icon: TrendingDown, color: 'text-red-500' },
-  { value: '75%', label: 'Schools with internet but no digital curriculum', icon: WifiOff, color: 'text-orange-500' },
-  { value: '60%', label: 'Graduates unable to write a formal letter in English', icon: BookX, color: 'text-purple-500' },
-  { value: '90%', label: 'Students with no access to career counseling', icon: UserX, color: 'text-blue-500' },
+  { value: '17%', label: 'Secondary school completion rate in rural Rwanda', icon: TrendingDown, color: 'text-emerald-700' },
+  { value: '75%', label: 'Schools with internet but no digital curriculum', icon: WifiOff, color: 'text-emerald-700' },
+  { value: '60%', label: 'Graduates unable to write a formal letter in English', icon: BookX, color: 'text-emerald-700' },
+  { value: '90%', label: 'Students with no access to career counseling', icon: UserX, color: 'text-emerald-700' },
 ];
 
 export default function ProblemPage() {
@@ -69,21 +69,20 @@ export default function ProblemPage() {
       <main className="flex-1">
 
         {/* ── PAGE HERO ── */}
-        <section className="relative overflow-hidden bg-gray-900 py-24 sm:py-32">
+        <section className="relative overflow-hidden bg-emerald-900 py-24 sm:py-32">
           <div
             className="absolute inset-0 opacity-[0.06]"
             style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '28px 28px' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-red-900/30 to-transparent" />
           <div className="container-custom relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 bg-red-900/40 border border-red-700/50 text-red-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-emerald-100 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
               <AlertTriangle className="w-3.5 h-3.5" />
               The Challenge We&apos;re Solving
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-6 leading-tight max-w-3xl mx-auto">
               The Skills Gap Holding Rwanda&apos;s Students Back
             </h1>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-emerald-200 text-lg max-w-2xl mx-auto leading-relaxed">
               Thousands of motivated, intelligent students in Rwanda&apos;s public day schools are being left behind —
               not because of lack of effort, but because of systemic gaps in English, digital skills, and career support.
             </p>
@@ -97,7 +96,7 @@ export default function ProblemPage() {
               {stats.map(({ value, label, icon: Icon, color }) => (
                 <div key={label} className="text-center">
                   <Icon className={`w-6 h-6 mx-auto mb-3 ${color}`} />
-                  <div className={`text-3xl font-extrabold mb-1 ${color}`}>{value}</div>
+                  <div className={`text-3xl font-extrabold mb-1 text-gray-900`}>{value}</div>
                   <div className="text-xs text-gray-500 leading-snug">{label}</div>
                 </div>
               ))}
@@ -109,7 +108,7 @@ export default function ProblemPage() {
         <section className="py-24">
           <div className="container-custom">
             <div className="text-center mb-14">
-              <span className="inline-block text-xs font-semibold text-gray-600 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full mb-4">Three Core Problems</span>
+              <span className="inline-block text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full mb-4">Three Core Challenges</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
                 What's Holding Students Back
               </h2>
@@ -209,7 +208,7 @@ export default function ProblemPage() {
               EDU-Bridge directly addresses each of these three gaps with targeted, free, accessible tools.
             </p>
             <Link href="/solution">
-              <Button className="bg-emerald-700 hover:bg-emerald-800 text-white border-0">
+              <Button variant="primary">
                 See Our Solution <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>

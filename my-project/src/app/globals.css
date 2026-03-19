@@ -1,34 +1,100 @@
 @import "tailwindcss";
 
+/* ── DESIGN TOKENS ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand */
+  --color-primary:        #047857; /* emerald-700 */
+  --color-primary-hover:  #065f46; /* emerald-800 */
+  --color-primary-light:  #d1fae5; /* emerald-100 */
+  --color-primary-subtle: #ecfdf5; /* emerald-50  */
+
+  --color-accent:         #f59e0b; /* amber-500   */
+  --color-accent-hover:   #d97706; /* amber-600   */
+  --color-accent-light:   #fef3c7; /* amber-100   */
+  --color-accent-subtle:  #fffbeb; /* amber-50    */
+
+  /* Neutrals */
+  --color-gray-900: #111827;
+  --color-gray-800: #1f2937;
+  --color-gray-700: #374151;
+  --color-gray-600: #4b5563;
+  --color-gray-500: #6b7280;
+  --color-gray-400: #9ca3af;
+  --color-gray-300: #d1d5db;
+  --color-gray-200: #e5e7eb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-50:  #f9fafb;
+  --color-white:    #ffffff;
+
+  /* Semantic */
+  --color-success:        #059669;
+  --color-success-light:  #d1fae5;
+  --color-error:          #dc2626;
+  --color-error-light:    #fee2e2;
+  --color-warning:        #d97706;
+  --color-warning-light:  #fef3c7;
+  --color-info:           #2563eb;
+  --color-info-light:     #dbeafe;
+
+  /* Surface */
+  --color-bg:             #ffffff;
+  --color-bg-subtle:      #f9fafb;
+  --color-border:         #e5e7eb;
+  --color-border-light:   #f3f4f6;
+
+  /* Text */
+  --color-text-primary:   #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-inverse:   #ffffff;
 }
 
+/* ── TAILWIND THEME REGISTRATION ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary:        var(--color-primary);
+  --color-primary-hover:  var(--color-primary-hover);
+  --color-primary-light:  var(--color-primary-light);
+  --color-primary-subtle: var(--color-primary-subtle);
+
+  --color-accent:         var(--color-accent);
+  --color-accent-hover:   var(--color-accent-hover);
+  --color-accent-light:   var(--color-accent-light);
+  --color-accent-subtle:  var(--color-accent-subtle);
+
+  --color-surface:        var(--color-bg);
+  --color-surface-subtle: var(--color-bg-subtle);
+  --color-border:         var(--color-border);
+  --color-border-light:   var(--color-border-light);
+
+  --color-text-primary:   var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-inverse:   var(--color-text-inverse);
+
+  --color-success:        var(--color-success);
+  --color-success-light:  var(--color-success-light);
+  --color-error:          var(--color-error);
+  --color-error-light:    var(--color-error-light);
+  --color-warning:        var(--color-warning);
+  --color-warning-light:  var(--color-warning-light);
+  --color-info:           var(--color-info);
+  --color-info-light:     var(--color-info-light);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
+/* ── BASE ── */
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
 .container-custom {
   width: 100%;
   max-width: 1280px;
@@ -57,4 +123,33 @@ html {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* ── REUSABLE COMPONENT CLASSES ── */
+.btn-focus {
+  outline: none;
+}
+.btn-focus:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.card-base {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.07);
+}
+
+/* ── SECTION LABEL (pill badge used on every page) ── */
+.section-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  border: 1px solid var(--color-primary-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
 }

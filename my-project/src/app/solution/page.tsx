@@ -39,8 +39,8 @@ const modules = [
   {
     icon: Laptop,
     title: 'Digital Literacy Training',
-    color: 'bg-blue-700',
-    lightColor: 'bg-blue-50 text-blue-700 border-blue-100',
+    color: 'bg-emerald-700',
+    lightColor: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     description: 'Practical computer skills training that works in school labs — no personal device required.',
     features: [
       { icon: Mail, label: 'Professional email writing and inbox management' },
@@ -53,8 +53,8 @@ const modules = [
   {
     icon: Users,
     title: 'Mentorship System',
-    color: 'bg-purple-700',
-    lightColor: 'bg-purple-50 text-purple-700 border-purple-100',
+    color: 'bg-emerald-800',
+    lightColor: 'bg-emerald-50 text-emerald-800 border-emerald-100',
     description: 'Structured one-on-one and group mentorship connecting students with professionals and educators.',
     features: [
       { icon: Calendar, label: 'Weekly scheduled sessions with assigned mentors' },
@@ -67,7 +67,7 @@ const modules = [
   {
     icon: Briefcase,
     title: 'Career Preparation Tools',
-    color: 'bg-amber-600',
+    color: 'bg-amber-500',
     lightColor: 'bg-amber-50 text-amber-700 border-amber-100',
     description: 'Everything a student needs to move from school to university or employment with confidence.',
     features: [
@@ -126,8 +126,8 @@ export default function SolutionPage() {
             style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '28px 28px' }}
           />
           <div className="container-custom relative z-10 text-center">
-            <span className="inline-block text-xs font-semibold text-emerald-300 bg-emerald-800/60 border border-emerald-700 px-3 py-1 rounded-full mb-5">
-              Our Solution
+            <span className="inline-block text-xs font-semibold text-emerald-100 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-5">
+              Our Approach
             </span>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-6 leading-tight max-w-3xl mx-auto">
               One Platform. Three Skills. Unlimited Potential.
@@ -258,7 +258,7 @@ export default function SolutionPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/impact">
-                <Button className="bg-amber-500 hover:bg-amber-400 text-white border-0">
+                <Button variant="secondary">
                   See Our Impact <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>

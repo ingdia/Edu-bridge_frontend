@@ -244,14 +244,12 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/problem">
-                <Button className="bg-emerald-700 hover:bg-emerald-800 text-white border-0">
+                <Button variant="primary">
                   See the Problem <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button variant="outline" className="border-gray-200 text-gray-700">
-                  Contact Us
-                </Button>
+                <Button variant="outline">Contact Us</Button>
               </Link>
             </div>
           </div>

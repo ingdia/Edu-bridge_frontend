@@ -119,13 +119,13 @@ export default function HomePage() {
 
                 <div className="flex flex-col sm:flex-row gap-3 mb-10">
                   <Link href="/register">
-                    <Button size="lg" className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg shadow-emerald-100 border-0">
+                    <Button variant="primary" size="lg" className="w-full sm:w-auto shadow-lg shadow-emerald-100">
                       Get Started Free
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </Link>
                   <Link href="/about">
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto border-gray-200 text-gray-700 hover:border-emerald-300 hover:text-emerald-700">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto">
                       Learn More
                       <ChevronRight className="ml-1 w-4 h-4" />
                     </Button>
@@ -247,7 +247,7 @@ export default function HomePage() {
                   ))}
                 </ul>
                 <Link href="/about">
-                  <Button className="bg-emerald-700 hover:bg-emerald-800 text-white border-0">
+                  <Button variant="primary">
                     Read Our Story
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -334,7 +334,7 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/register">
-                    <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-white border-0 shadow-lg">
+                    <Button variant="secondary" size="lg" className="w-full sm:w-auto shadow-lg">
                       Create Free Account
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>

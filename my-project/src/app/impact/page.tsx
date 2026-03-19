@@ -31,16 +31,16 @@ const outcomes = [
     stat: '89%',
     label: 'Digital confidence increase',
     description: '89% of students report feeling confident using computers for professional tasks after completing the digital literacy program.',
-    color: 'bg-blue-50 border-blue-200 text-blue-700',
-    statColor: 'text-blue-700',
+    color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    statColor: 'text-emerald-700',
   },
   {
     icon: GraduationCap,
     stat: '3x',
     label: 'Higher university admission rate',
     description: 'EDU-Bridge students are 3x more likely to gain university admission compared to peers without the program.',
-    color: 'bg-purple-50 border-purple-200 text-purple-700',
-    statColor: 'text-purple-700',
+    color: 'bg-amber-50 border-amber-200 text-amber-700',
+    statColor: 'text-amber-700',
   },
   {
     icon: Users,
@@ -141,19 +141,19 @@ export default function ImpactPage() {
       <main className="flex-1">
 
         {/* ── PAGE HERO ── */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 py-24 sm:py-32">
+        <section className="relative overflow-hidden bg-emerald-900 py-24 sm:py-32">
           <div
             className="absolute inset-0 opacity-10"
             style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '28px 28px' }}
           />
           <div className="container-custom relative z-10 text-center">
-            <span className="inline-block text-xs font-semibold text-emerald-300 bg-emerald-900/60 border border-emerald-700 px-3 py-1 rounded-full mb-5">
-              Our Impact
+            <span className="inline-block text-xs font-semibold text-emerald-100 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-5">
+              Our Results
             </span>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-6 leading-tight max-w-3xl mx-auto">
               Changing Outcomes for Rwanda&apos;s Students
             </h1>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-emerald-200 text-lg max-w-2xl mx-auto leading-relaxed">
               Since our pilot at GS Ruyenzi, EDU-Bridge has been transforming what&apos;s possible for
               public day school students — and we&apos;re just getting started.
             </p>
@@ -290,7 +290,7 @@ export default function ImpactPage() {
                     <div className="bg-white rounded-2xl border border-gray-100 p-7 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex flex-wrap items-center gap-3 mb-3">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.phase}</span>
-                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${item.statusColor}`}>{item.status}</span>
+                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700`}>{item.status}</span>
                         <span className="text-xs text-gray-400 ml-auto">{item.year}</span>
                       </div>
                       <h3 className="font-bold text-gray-900 mb-2">{item.title}</h3>
@@ -354,14 +354,12 @@ export default function ImpactPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/register">
-                <Button className="bg-emerald-700 hover:bg-emerald-800 text-white border-0">
+                <Button variant="primary">
                   Join EDU-Bridge Free <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button variant="outline" className="border-gray-200 text-gray-700">
-                  Partner With Us
-                </Button>
+                <Button variant="outline">Partner With Us</Button>
               </Link>
             </div>
           </div>
