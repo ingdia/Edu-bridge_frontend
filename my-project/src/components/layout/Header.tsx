@@ -35,19 +35,19 @@ export function Header() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 bg-white/95 backdrop-blur-sm transition-all duration-300',
-        isScrolled ? 'shadow-md' : 'border-b border-gray-100'
+        'sticky top-0 z-50 bg-amber-50/50 backdrop-blur-sm transition-all duration-300',
+        isScrolled ? 'shadow-md' : 'border-b border-amber-100'
       )}
     >
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-emerald-800 transition-colors">
-              <GraduationCap className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-center transition-colors group-hover:bg-emerald-100">
+              <GraduationCap className="w-5 h-5 text-emerald-700" />
             </div>
             <span className="font-bold text-gray-900 text-lg tracking-tight">
-              EDU<span className="text-emerald-700">-Bridge</span>
+              EDU<span className="text-amber-500">-Bridge</span>
             </span>
           </Link>
 

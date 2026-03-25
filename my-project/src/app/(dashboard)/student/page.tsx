@@ -53,7 +53,7 @@ export default function StudentOverviewPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">
-            Good morning, {mockUser.fullName.split(' ')[0]} 👋
+            Good morning, {mockUser.fullName.split(' ')[0]} 
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             {mockUser.school} · {mockUser.gradeLevel} · Keep up the great work!

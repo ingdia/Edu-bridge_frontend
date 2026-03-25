@@ -17,6 +17,9 @@ import {
   Settings,
   Menu,
   X,
+  Users,
+  CalendarDays,
+  ClipboardCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mockUser } from '@/lib/api/mockData';
@@ -30,6 +33,14 @@ const studentNav = [
   { href: '/student/messages', label: 'Messages',    icon: MessageSquare },
 ];
 
+const mentorNav = [
+  { href: '/mentor',           label: 'Overview',  icon: LayoutDashboard, exact: true },
+  { href: '/mentor/students',  label: 'Students',  icon: Users },
+  { href: '/mentor/sessions',  label: 'Sessions',  icon: CalendarDays },
+  { href: '/mentor/grading',   label: 'Grading',   icon: ClipboardCheck },
+  { href: '/mentor/messages',  label: 'Messages',  icon: MessageSquare },
+];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed]   = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -39,15 +50,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 
+  const isMentor = pathname.startsWith('/mentor');
+  const nav = isMentor ? mentorNav : studentNav;
+  const navLabel = isMentor ? 'Mentor' : 'Student';
+  const settingsHref = isMentor ? '/mentor/settings' : '/student/settings';
+
+  const theme = isMentor
+    ? { sidebar: 'border-emerald-200', logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-emerald-200', sidebarBg: 'bg-gray-50', topbarBg: 'bg-gray-50' }
+    : { sidebar: 'border-amber-100',  logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-gray-100', sidebarBg: 'bg-white', topbarBg: 'bg-white' };
+
+  const topbarTitle = isMentor ? 'Mentor Dashboard' : 'Student Dashboard';
   const initials = mockUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2);
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-white">
 
       {/* ── MOBILE OVERLAY ── */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-amber-100/50 z-30 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -55,18 +76,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* ── SIDEBAR ── */}
       <aside
         className={cn(
-          'fixed top-0 left-0 h-full z-40 flex flex-col bg-emerald-900 transition-all duration-300',
+          `fixed top-0 left-0 h-full z-40 flex flex-col ${theme.sidebarBg} border-r ${theme.sidebar} transition-all duration-300`,
           collapsed ? 'w-[72px]' : 'w-64',
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         {/* Logo */}
-        <div className={cn('flex items-center h-16 px-4 border-b border-emerald-800 shrink-0', collapsed ? 'justify-center' : 'gap-3')}>
-          <div className="w-9 h-9 bg-white/10 border border-white/20 rounded-xl flex items-center justify-center shrink-0">
-            <GraduationCap className="w-5 h-5 text-white" />
+        <div className={cn('flex items-center h-16 px-4 border-b border-gray-100 shrink-0', collapsed ? 'justify-center' : 'gap-3')}>
+          <div className={`w-9 h-9 ${theme.logo} rounded-xl flex items-center justify-center shrink-0`}>
+            <GraduationCap className={`w-5 h-5 ${theme.logoIcon}`} />
           </div>
           {!collapsed && (
-            <span className="font-bold text-white text-lg tracking-tight">
+            <span className="font-bold text-gray-900 text-lg tracking-tight">
               EDU<span className="text-amber-400">-Bridge</span>
             </span>
           )}
@@ -75,9 +96,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Nav */}
         <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
           {!collapsed && (
-            <p className="text-emerald-500 text-[10px] font-semibold uppercase tracking-widest px-3 mb-2">Student</p>
+            <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest px-3 mb-2">{navLabel}</p>
           )}
-          {studentNav.map(({ href, label, icon: Icon, exact }) => (
+          {nav.map(({ href, label, icon: Icon, exact }) => (
             <Link
               key={href}
               href={href}
@@ -85,8 +106,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group',
                 isActive(href, exact)
-                  ? 'bg-white/15 text-white'
-                  : 'text-emerald-300 hover:bg-white/10 hover:text-white',
+                  ? theme.active
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900',
                 collapsed && 'justify-center px-2'
               )}
               title={collapsed ? label : undefined}
@@ -94,18 +115,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Icon className="w-5 h-5 shrink-0" />
               {!collapsed && <span>{label}</span>}
               {!collapsed && isActive(href, exact) && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span className={`ml-auto w-1.5 h-1.5 rounded-full ${theme.dot}`} />
               )}
             </Link>
           ))}
         </nav>
 
         {/* Bottom */}
-        <div className="px-2 pb-4 space-y-0.5 border-t border-emerald-800 pt-3">
+        <div className="px-2 pb-4 space-y-0.5 border-t border-gray-100 pt-3">
           <Link
-            href="/student/settings"
+            href={settingsHref}
             className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-emerald-300 hover:bg-white/10 hover:text-white transition-all',
+              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all',
               collapsed && 'justify-center px-2'
             )}
             title={collapsed ? 'Settings' : undefined}
@@ -116,7 +137,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button
             onClick={logout}
             className={cn(
-              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-emerald-300 hover:bg-white/10 hover:text-white transition-all',
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all',
               collapsed && 'justify-center px-2'
             )}
             title={collapsed ? 'Log out' : undefined}
@@ -129,7 +150,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Collapse toggle — desktop only */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-emerald-700 border border-emerald-600 rounded-full items-center justify-center text-white hover:bg-emerald-600 transition-colors shadow-md"
+          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center text-gray-500 hover:text-gray-900 transition-colors shadow-sm"
         >
           {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
         </button>
@@ -139,13 +160,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className={cn('flex-1 flex flex-col min-w-0 transition-all duration-300', collapsed ? 'lg:ml-[72px]' : 'lg:ml-64')}>
 
         {/* Top bar */}
-        <header className="sticky top-0 z-20 h-16 bg-white border-b border-gray-100 flex items-center px-4 sm:px-6 gap-4 shrink-0">
+        <header className={`sticky top-0 z-20 h-16 ${theme.topbarBg} border-b ${theme.topbar} flex items-center px-4 sm:px-6 gap-4 shrink-0`}>
           <button
             className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
+
+          <div className="hidden lg:block">
+            <h1 className="text-sm font-semibold text-gray-900">{topbarTitle}</h1>
+          </div>
 
           <div className="flex-1" />
 
@@ -156,7 +181,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
 
             <div className="flex items-center gap-2.5 pl-2 border-l border-gray-100">
-              <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className={`w-8 h-8 rounded-full ${theme.avatar} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
                 {initials}
               </div>
               <div className="hidden sm:block">
