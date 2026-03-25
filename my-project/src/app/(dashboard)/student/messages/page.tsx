@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Search, MoreVertical, Phone, Video } from 'lucide-react';
+import { logAction } from '@/lib/utils/auditLogger';
 
 type Message = { id: number; from: 'me' | 'them'; text: string; time: string };
 
@@ -77,6 +78,7 @@ export default function MessagesPage() {
     const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     const msg: Message = { id: Date.now(), from: 'me', text: input.trim(), time: now };
     setAllMessages((prev) => ({ ...prev, [activeConvId]: [...(prev[activeConvId] ?? []), msg] }));
+    logAction('usr_123', 'STUDENT', 'MESSAGE_SENT', `Message sent to conversation ${activeConvId}`);
     setInput('');
   };
 

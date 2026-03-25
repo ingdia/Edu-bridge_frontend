@@ -162,6 +162,20 @@ export default function LearningPage() {
 
               <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3">{activeEx.instructions}</p>
 
+              {/* FR3.1 — Listening exercise with audio player */}
+              {activeEx.type === 'LISTENING' && 'audioUrl' in activeEx.content && (
+                <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Audio</p>
+                  <audio
+                    controls
+                    src={String(activeEx.content.audioUrl)}
+                    className="w-full"
+                    onError={(e) => (e.currentTarget.style.display = 'none')}
+                  />
+                  <p className="text-xs text-gray-400">Listen carefully, then answer the questions below.</p>
+                </div>
+              )}
+
               {/* FR3.2 — Speaking exercise with microphone recording */}
               {activeEx.type === 'SPEAKING' ? (
                 <SpeakingExercise

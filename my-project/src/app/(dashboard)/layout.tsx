@@ -102,12 +102,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const firstName   = displayUser.fullName.split(' ')[0];
   const roleLabel   = displayUser.gradeLevel;
 
-  const [notifications, setNotifications] = useState(
-    isAdmin ? adminNotifications : isMentor ? mentorNotifications : studentNotifications
-  );
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  // NFR10 — derive base notifications from current role (pathname-reactive, not stale useState)
+  const baseNotifications = isAdmin ? adminNotifications : isMentor ? mentorNotifications : studentNotifications;
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const notifications = baseNotifications.map((n) => ({ ...n, read: n.read || readIds.has(n.id) }));
+  const unreadCount   = notifications.filter((n) => !n.read).length;
+  const markAllRead   = () => setReadIds(new Set(baseNotifications.map((n) => n.id)));
 
   return (
     <div className="min-h-screen flex bg-white">
