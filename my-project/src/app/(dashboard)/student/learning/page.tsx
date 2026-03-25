@@ -11,6 +11,24 @@ import { EmailSimulator, defaultEmailScenario } from '@/components/features/lear
 import { SpeakingExercise } from '@/components/features/learning/SpeakingExercise';
 import { logAction } from '@/lib/utils/auditLogger';
 
+function ListeningPlayer({ src }: { src: string }) {
+  const [error, setError] = useState(false);
+  return (
+    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Audio</p>
+      {error ? (
+        <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-100 px-3 py-2 rounded-lg">
+          <Headphones className="w-4 h-4 shrink-0" />
+          Audio file not available in demo mode. In production this would play the exercise audio.
+        </div>
+      ) : (
+        <audio controls src={src} className="w-full" onError={() => setError(true)} />
+      )}
+      <p className="text-xs text-gray-400">Listen carefully, then answer the questions below.</p>
+    </div>
+  );
+}
+
 const exerciseTypeIcons: Record<string, typeof BookOpen> = {
   LISTENING:     Headphones,
   SPEAKING:      Mic,
@@ -164,16 +182,7 @@ export default function LearningPage() {
 
               {/* FR3.1 — Listening exercise with audio player */}
               {activeEx.type === 'LISTENING' && 'audioUrl' in activeEx.content && (
-                <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Audio</p>
-                  <audio
-                    controls
-                    src={String(activeEx.content.audioUrl)}
-                    className="w-full"
-                    onError={(e) => (e.currentTarget.style.display = 'none')}
-                  />
-                  <p className="text-xs text-gray-400">Listen carefully, then answer the questions below.</p>
-                </div>
+                <ListeningPlayer src={String(activeEx.content.audioUrl)} />
               )}
 
               {/* FR3.2 — Speaking exercise with microphone recording */}

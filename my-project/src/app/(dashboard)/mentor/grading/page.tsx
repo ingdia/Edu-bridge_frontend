@@ -147,9 +147,12 @@ export default function MentorGrading() {
                 <CheckCircle className="w-5 h-5 text-emerald-600" />
                 <div>
                   <p className="text-sm font-semibold text-emerald-800">
-                    Graded: {'score' in selected ? selected.score : '—'}/{selected.maxScore}
+                    Graded: {graded[selected.id]?.score ?? ('score' in selected ? selected.score : '—')}/{selected.maxScore}
                   </p>
                   <p className="text-xs text-emerald-600">Submitted {new Date(selected.submittedAt).toLocaleDateString()}</p>
+                  {graded[selected.id]?.feedback && (
+                    <p className="text-xs text-emerald-700 mt-1 italic">"{graded[selected.id].feedback}"</p>
+                  )}
                 </div>
               </div>
             </div>

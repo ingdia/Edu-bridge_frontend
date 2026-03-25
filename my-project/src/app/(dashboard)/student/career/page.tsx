@@ -26,9 +26,11 @@ const cvSteps = [
   { label: 'References', done: false },
 ];
 
-const applications = [
-  { title: 'ALU Scholarship', org: 'African Leadership University', status: 'Submitted', date: 'Mar 10', color: 'bg-emerald-100 text-emerald-700' },
-  { title: 'Tech Hub Internship', org: 'Tech Hub Rwanda', status: 'Under Review', date: 'Mar 15', color: 'bg-amber-100 text-amber-700' },
+type Application = { id: string; title: string; org: string; status: string; date: string; color: string };
+
+const initialApplications: Application[] = [
+  { id: 'app_1', title: 'ALU Scholarship', org: 'African Leadership University', status: 'Submitted', date: 'Mar 10', color: 'bg-emerald-100 text-emerald-700' },
+  { id: 'app_2', title: 'Tech Hub Internship', org: 'Tech Hub Rwanda', status: 'Under Review', date: 'Mar 15', color: 'bg-amber-100 text-amber-700' },
 ];
 
 export default function CareerPage() {
@@ -39,13 +41,19 @@ export default function CareerPage() {
   const [applying, setApplying]     = useState<Opportunity | null>(null);
   const [appNote, setAppNote]       = useState('');
   const [submitted, setSubmitted]   = useState<string[]>([]);
+  const [applications, setApplications] = useState<Application[]>(initialApplications);
   const [appSuccess, setAppSuccess] = useState(false);
 
   const handleApply = (opp: Opportunity) => { setApplying(opp); setAppNote(''); };
 
   const submitApplication = () => {
     if (!applying) return;
+    const now = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     setSubmitted((p) => [...p, applying.id]);
+    setApplications((p) => [
+      { id: applying.id, title: applying.title, org: applying.organization, status: 'Submitted', date: now, color: 'bg-emerald-100 text-emerald-700' },
+      ...p,
+    ]);
     logAction('usr_123', 'STUDENT', 'APPLICATION_SUBMITTED', `Applied to ${applying.title}`);
     setApplying(null);
     setAppSuccess(true);
@@ -283,7 +291,7 @@ export default function CareerPage() {
             ) : (
               <div className="space-y-3">
                 {applications.map((app) => (
-                  <div key={app.title} className="p-3 bg-gray-50 rounded-xl">
+                  <div key={app.id} className="p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <span className="text-sm font-medium text-gray-900 leading-snug">{app.title}</span>
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${app.color}`}>

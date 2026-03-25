@@ -25,7 +25,6 @@ export default function AdminReportsPage() {
   const [term, setTerm]               = useState('Term 1 2026');
   const [grades, setGrades]           = useState<Record<string, string>>({});
   const [uploadFile, setUploadFile]   = useState<File | null>(null);
-  const [saved, setSaved]             = useState(false);
   const [dragOver, setDragOver]       = useState(false);
 
   const handleGrade = (subject: string, value: string) => {
@@ -55,11 +54,7 @@ export default function AdminReportsPage() {
           <h1 className="text-xl font-bold text-gray-900">Academic Reports</h1>
           <p className="text-sm text-gray-500 mt-0.5">Enter student grades manually or upload scanned report cards.</p>
         </div>
-        {saved && (
-          <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl">
-            <CheckCircle className="w-4 h-4" /> Report saved successfully
-          </div>
-        )}
+
       </div>
 
       <div className="grid lg:grid-cols-5 gap-6">

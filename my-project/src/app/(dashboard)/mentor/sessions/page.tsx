@@ -51,7 +51,13 @@ export default function MentorSessions() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Session Title</label>
-              <input className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" placeholder="e.g. Weekly English Practice" />
+              <input
+                value={sessionTitle}
+                onChange={(e) => setSessionTitle(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+                placeholder="e.g. Weekly English Practice"
+              />
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Students</label>
@@ -64,7 +70,13 @@ export default function MentorSessions() {
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Date & Time</label>
-              <input type="datetime-local" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+              <input
+                type="datetime-local"
+                value={sessionDate}
+                onChange={(e) => setSessionDate(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+              />
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Duration</label>

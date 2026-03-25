@@ -108,6 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const notifications = baseNotifications.map((n) => ({ ...n, read: n.read || readIds.has(n.id) }));
   const unreadCount   = notifications.filter((n) => !n.read).length;
   const markAllRead   = () => setReadIds(new Set(baseNotifications.map((n) => n.id)));
+  const markOneRead   = (id: string) => setReadIds((prev) => new Set([...prev, id]));
 
   return (
     <div className="min-h-screen flex bg-white">
@@ -233,7 +234,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {notifications.map((n) => {
                       const Icon = n.icon;
                       return (
-                        <div key={n.id} className={cn('flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors', !n.read && 'bg-amber-50/40')}>
+                        <div key={n.id}
+                          onClick={() => markOneRead(n.id)}
+                          className={cn('flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer', !n.read && 'bg-amber-50/40')}>
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${n.bg}`}>
                             <Icon className={`w-4 h-4 ${n.color}`} />
                           </div>
