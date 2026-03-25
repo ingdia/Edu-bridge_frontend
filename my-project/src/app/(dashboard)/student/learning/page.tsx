@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { mockModules, mockProgress } from '@/lib/api/mockData';
 import { EmailSimulator, defaultEmailScenario } from '@/components/features/learning/EmailSimulator';
+import { SpeakingExercise } from '@/components/features/learning/SpeakingExercise';
 import { logAction } from '@/lib/utils/auditLogger';
 
 const exerciseTypeIcons: Record<string, typeof BookOpen> = {
@@ -161,14 +162,21 @@ export default function LearningPage() {
 
               <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3">{activeEx.instructions}</p>
 
-              {/* NFR12 — Email simulator for DIGITAL_SKILL exercises */}
-              {activeEx.type === 'DIGITAL_SKILL' ? (
+              {/* FR3.2 — Speaking exercise with microphone recording */}
+              {activeEx.type === 'SPEAKING' ? (
+                <SpeakingExercise
+                  prompt={'prompt' in activeEx.content ? String(activeEx.content.prompt) : 'Speak clearly about the topic.'}
+                  maxDuration={'maxDuration' in activeEx.content ? Number(activeEx.content.maxDuration) : 60}
+                  onComplete={(score) => handleExerciseComplete(activeEx.id, score)}
+                />
+              ) : activeEx.type === 'DIGITAL_SKILL' ? (
+                /* NFR12 — Email simulator */
                 <EmailSimulator
                   scenario={defaultEmailScenario}
                   onComplete={(score) => handleExerciseComplete(activeEx.id, score)}
                 />
               ) : (
-                /* Generic exercise placeholder for other types */
+                /* Generic exercise for LISTENING / READING / WRITING */
                 <div className="space-y-4">
                   {'prompt' in activeEx.content && (
                     <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
