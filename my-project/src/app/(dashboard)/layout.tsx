@@ -41,6 +41,14 @@ const mentorNav = [
   { href: '/mentor/messages',  label: 'Messages',  icon: MessageSquare },
 ];
 
+const adminNav = [
+  { href: '/admin',               label: 'Overview',     icon: LayoutDashboard, exact: true },
+  { href: '/admin/users',         label: 'Users',        icon: Users },
+  { href: '/admin/modules',       label: 'Modules',      icon: BookOpen },
+  { href: '/admin/analytics',     label: 'Analytics',    icon: TrendingUp },
+  { href: '/admin/opportunities', label: 'Opportunities',icon: Briefcase },
+];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed]   = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,16 +58,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 
+  const isAdmin  = pathname.startsWith('/admin');
   const isMentor = pathname.startsWith('/mentor');
-  const nav = isMentor ? mentorNav : studentNav;
-  const navLabel = isMentor ? 'Mentor' : 'Student';
-  const settingsHref = isMentor ? '/mentor/settings' : '/student/settings';
+  const nav = isAdmin ? adminNav : isMentor ? mentorNav : studentNav;
+  const navLabel = isAdmin ? 'Admin' : isMentor ? 'Mentor' : 'Student';
+  const settingsHref = isAdmin ? '/admin/settings' : isMentor ? '/mentor/settings' : '/student/settings';
 
-  const theme = isMentor
+  const theme = isAdmin
+    ? { sidebar: 'border-violet-200', logo: 'bg-violet-50 border-violet-100', logoIcon: 'text-violet-700', active: 'bg-violet-50 text-violet-700', dot: 'bg-amber-400', avatar: 'bg-violet-700', topbar: 'border-violet-100', sidebarBg: 'bg-gray-50', topbarBg: 'bg-gray-50' }
+    : isMentor
     ? { sidebar: 'border-emerald-200', logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-emerald-200', sidebarBg: 'bg-gray-50', topbarBg: 'bg-gray-50' }
     : { sidebar: 'border-amber-100',  logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-gray-100', sidebarBg: 'bg-white', topbarBg: 'bg-white' };
 
-  const topbarTitle = isMentor ? 'Mentor Dashboard' : 'Student Dashboard';
+  const topbarTitle = isAdmin ? 'Admin Dashboard' : isMentor ? 'Mentor Dashboard' : 'Student Dashboard';
   const initials = mockUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2);
 
   return (

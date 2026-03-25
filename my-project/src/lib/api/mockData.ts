@@ -249,3 +249,53 @@ export const mockMentorStats: AdminStats = {
     { id: 'act_3', userId: 'usr_124', action: 'Started module: Reading Comprehension', timestamp: '2026-03-18T14:20:00Z' },
   ],
 };
+
+// ============ ADMIN MOCK DATA ============
+
+export const mockAdminStats = {
+  totalStudents: 142,
+  totalMentors: 8,
+  activeModules: 12,
+  platformCompletionRate: 64,
+  newUsersThisWeek: 14,
+  sessionsThisWeek: 9,
+  pendingReports: 3,
+  activeOpportunities: 7,
+};
+
+export const mockAllUsers = [
+  { id: 'usr_123', fullName: 'Jean Pierre Niyonzima', email: 'jp@gs-ruyenzi.rw', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4', status: 'ACTIVE', joinedAt: '2026-01-10T08:00:00Z' },
+  { id: 'usr_124', fullName: 'Marie Uwimana', email: 'marie@gs-ruyenzi.rw', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4', status: 'ACTIVE', joinedAt: '2026-01-10T08:00:00Z' },
+  { id: 'usr_125', fullName: 'Emmanuel Habimana', email: 'emma@gs-ruyenzi.rw', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4', status: 'ACTIVE', joinedAt: '2026-01-11T08:00:00Z' },
+  { id: 'usr_126', fullName: 'Claudine Mukamana', email: 'claudine@gs-ruyenzi.rw', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4', status: 'INACTIVE', joinedAt: '2026-01-12T08:00:00Z' },
+  { id: 'usr_127', fullName: 'Patrick Nkurunziza', email: 'patrick@gs-ruyenzi.rw', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4', status: 'ACTIVE', joinedAt: '2026-01-13T08:00:00Z' },
+  { id: 'mnt_001', fullName: 'Dr. Alice Ingabire', email: 'alice@edubridge.rw', role: 'MENTOR' as const, school: 'GS Ruyenzi', gradeLevel: '—', status: 'ACTIVE', joinedAt: '2026-01-05T08:00:00Z' },
+  { id: 'mnt_002', fullName: 'Mr. Robert Mugisha', email: 'robert@edubridge.rw', role: 'MENTOR' as const, school: 'GS Ruyenzi', gradeLevel: '—', status: 'ACTIVE', joinedAt: '2026-01-06T08:00:00Z' },
+  { id: 'adm_001', fullName: 'Diane Ingabire', email: 'admin@edubridge.rw', role: 'ADMIN' as const, school: '—', gradeLevel: '—', status: 'ACTIVE', joinedAt: '2026-01-01T08:00:00Z' },
+];
+
+export const mockAdminModules = [
+  { id: 'mod_001', title: 'English: Listening Basics', type: 'ENGLISH', difficulty: 'BEGINNER', exercises: 2, enrolledStudents: 98, completionRate: 72, isActive: true, createdAt: '2026-01-15T08:00:00Z' },
+  { id: 'mod_002', title: 'Digital: Email Essentials', type: 'DIGITAL_LITERACY', difficulty: 'BEGINNER', exercises: 1, enrolledStudents: 87, completionRate: 91, isActive: true, createdAt: '2026-01-16T08:00:00Z' },
+  { id: 'mod_003', title: 'English: Reading Comprehension', type: 'ENGLISH', difficulty: 'INTERMEDIATE', exercises: 1, enrolledStudents: 76, completionRate: 45, isActive: true, createdAt: '2026-01-17T08:00:00Z' },
+  { id: 'mod_004', title: 'English: Writing Practice', type: 'ENGLISH', difficulty: 'INTERMEDIATE', exercises: 1, enrolledStudents: 54, completionRate: 38, isActive: true, createdAt: '2026-01-18T08:00:00Z' },
+  { id: 'mod_005', title: 'Digital: Internet Safety', type: 'DIGITAL_LITERACY', difficulty: 'BEGINNER', exercises: 3, enrolledStudents: 112, completionRate: 80, isActive: true, createdAt: '2026-01-20T08:00:00Z' },
+  { id: 'mod_006', title: 'Career: CV Writing', type: 'CAREER', difficulty: 'INTERMEDIATE', exercises: 2, enrolledStudents: 43, completionRate: 55, isActive: false, createdAt: '2026-01-22T08:00:00Z' },
+];
+
+export const mockAdminOpportunities = [
+  { id: 'opp_001', title: 'Scholarship: African Leadership University', organization: 'ALU', type: 'SCHOLARSHIP' as const, deadline: '2026-06-30', applicants: 18, minGrade: 75, isActive: true },
+  { id: 'opp_002', title: 'Internship: Tech Hub Rwanda', organization: 'Tech Hub Rwanda', type: 'INTERNSHIP' as const, deadline: '2026-04-15', applicants: 9, minGrade: 60, isActive: true },
+  { id: 'opp_003', title: 'Remote Job: Content Writer', organization: 'EduTech Africa', type: 'JOB' as const, deadline: '2026-05-01', applicants: 5, minGrade: 70, isActive: true },
+  { id: 'opp_004', title: 'Scholarship: University of Rwanda', organization: 'UR', type: 'SCHOLARSHIP' as const, deadline: '2026-07-15', applicants: 24, minGrade: 70, isActive: true },
+  { id: 'opp_005', title: 'Internship: Rwanda Coding Academy', organization: 'RCA', type: 'INTERNSHIP' as const, deadline: '2026-03-31', applicants: 11, minGrade: 65, isActive: false },
+];
+
+export const mockAdminActivity = [
+  { id: 'act_a1', user: 'Jean Pierre Niyonzima', role: 'STUDENT', action: 'Completed Email Essentials module', timestamp: '2026-03-19T09:15:00Z' },
+  { id: 'act_a2', user: 'Dr. Alice Ingabire', role: 'MENTOR', action: 'Submitted feedback for 3 students', timestamp: '2026-03-19T08:45:00Z' },
+  { id: 'act_a3', user: 'Marie Uwimana', role: 'STUDENT', action: 'Started Reading Comprehension', timestamp: '2026-03-18T14:20:00Z' },
+  { id: 'act_a4', user: 'Mr. Robert Mugisha', role: 'MENTOR', action: 'Scheduled weekly lab session', timestamp: '2026-03-18T11:00:00Z' },
+  { id: 'act_a5', user: 'Patrick Nkurunziza', role: 'STUDENT', action: 'Applied for ALU Scholarship', timestamp: '2026-03-17T16:30:00Z' },
+  { id: 'act_a6', user: 'Diane Ingabire', role: 'ADMIN', action: 'Added new module: Internet Safety', timestamp: '2026-03-17T10:00:00Z' },
+];
