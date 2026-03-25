@@ -130,6 +130,60 @@ export const mockModules: Module[] = [
       },
     ],
   },
+  {
+    id: 'mod_005',
+    title: 'Digital: Internet Safety',
+    description: 'Learn how to stay safe online, recognise scams, protect your personal data, and use the internet responsibly.',
+    type: 'DIGITAL_LITERACY',
+    difficulty: 'BEGINNER',
+    isActive: true,
+    createdAt: '2026-01-20T08:00:00Z',
+    exercises: [
+      {
+        id: 'ex_006',
+        moduleId: 'mod_005',
+        type: 'READING',
+        title: 'Recognising Online Scams',
+        instructions: 'Read the passage about common online scams and answer the questions.',
+        content: {
+          passage: 'Online scams are attempts by criminals to trick you into giving away money or personal information. Common scams include fake job offers, phishing emails that pretend to be from your bank, and messages asking you to click suspicious links. Always verify the sender before clicking any link, never share your password, and report suspicious messages to a trusted adult.',
+          questions: [
+            { id: 'q1', question: 'What is a phishing email?', options: ['An email from your bank', 'A fake email pretending to be from a trusted source', 'A job offer email'], answer: 'A fake email pretending to be from a trusted source' },
+            { id: 'q2', question: 'What should you do with a suspicious link?', options: ['Click it immediately', 'Share it with friends', 'Do not click it and report it'], answer: 'Do not click it and report it' },
+          ],
+        },
+        maxScore: 10,
+      },
+      {
+        id: 'ex_007',
+        moduleId: 'mod_005',
+        type: 'DIGITAL_SKILL',
+        title: 'Report a Suspicious Email',
+        instructions: 'Practice writing a report email to your school IT administrator about a suspicious message you received.',
+        content: {
+          template: {
+            to: 'it@gs-ruyenzi.rw',
+            subject: 'Suspicious Email Report',
+            body: 'Dear IT Administrator,\n\nI am writing to report a suspicious email I received...\n\nThank you,\n[Your Name]',
+          },
+        },
+        maxScore: 10,
+      },
+      {
+        id: 'ex_008',
+        moduleId: 'mod_005',
+        type: 'WRITING',
+        title: 'Create a Strong Password',
+        instructions: 'Write a short guide explaining what makes a strong password and give three examples of good password rules.',
+        content: {
+          prompt: 'What makes a password strong? List at least 3 rules for creating a secure password.',
+          minLength: 40,
+          maxLength: 200,
+        },
+        maxScore: 10,
+      },
+    ],
+  },
 ];
 
 export const mockProgress: ProgressData = {

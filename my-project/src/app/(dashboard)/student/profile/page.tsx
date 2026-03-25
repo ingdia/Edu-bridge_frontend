@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { User, Home, Users, BookOpen, Lock, CheckCircle, Pencil, X } from 'lucide-react';
 import { mockUser } from '@/lib/api/mockData';
+import { logAction } from '@/lib/utils/auditLogger';
 
 const tabs = [
   { id: 'personal',     label: 'Personal Info',   icon: User },
@@ -67,6 +68,7 @@ export default function StudentProfilePage() {
   const handleSave = () => {
     setEditing(false);
     setSaved(true);
+    logAction(mockUser.id, 'STUDENT', 'PROFILE_UPDATED', 'Student updated their profile');
     setTimeout(() => setSaved(false), 3000);
   };
 

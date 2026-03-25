@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, Square, PlayCircle, RotateCcw, CheckCircle } from 'lucide-react';
+import { logAction } from '@/lib/utils/auditLogger';
 
 interface SpeakingExerciseProps {
   prompt: string;
@@ -80,10 +81,10 @@ export function SpeakingExercise({ prompt, maxDuration = 60, onComplete }: Speak
   };
 
   const submit = () => {
-    // Score based on recording duration: longer = better (up to maxDuration)
     const pct = Math.min(100, Math.round((elapsed / Math.max(maxDuration * 0.5, 1)) * 100));
     setScore(pct);
     setState('submitted');
+    logAction('usr_123', 'STUDENT', 'SPEAKING_RECORDED', `Speaking exercise submitted — duration: ${elapsed}s, score: ${pct}%`);
     onComplete?.(pct);
   };
 

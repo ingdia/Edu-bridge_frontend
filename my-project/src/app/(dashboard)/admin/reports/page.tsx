@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Upload, PenLine, CheckCircle, FileText, Trash2, Plus } from 'lucide-react';
 import { mockAllUsers } from '@/lib/api/mockData';
 import { cn } from '@/lib/utils';
+import { logAction } from '@/lib/utils/auditLogger';
 
 type EntryMode = 'manual' | 'upload';
 
@@ -32,6 +33,7 @@ export default function AdminReportsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    logAction('adm_001', 'ADMIN', mode === 'upload' ? 'REPORT_UPLOADED' : 'REPORT_MANUAL_ENTRY', `Report saved for student: ${selectedStudent}, term: ${term}`);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
     setGrades({});

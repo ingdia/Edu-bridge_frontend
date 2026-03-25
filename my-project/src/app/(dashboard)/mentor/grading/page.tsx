@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ClipboardCheck, CheckCircle, Clock, ChevronRight } from 'lucide-react';
+import { logAction } from '@/lib/utils/auditLogger';
 
 const submissions = [
   { id: 'sub_001', student: 'Jean Pierre Niyonzima', module: 'English: Listening Basics', exercise: 'Practice Your Introduction', submittedAt: '2026-03-19T09:00:00Z', status: 'PENDING', maxScore: 15 },
@@ -16,6 +17,15 @@ export default function MentorGrading() {
   const [score, setScore] = useState('');
   const [feedback, setFeedback] = useState('');
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'GRADED'>('ALL');
+  const [graded, setGraded] = useState<Record<string, { score: string; feedback: string }>>({});
+
+  const handleSubmitGrade = () => {
+    if (!score) return;
+    setGraded((prev) => ({ ...prev, [selected.id]: { score, feedback } }));
+    logAction('mnt_001', 'MENTOR', 'GRADE_SUBMITTED', `Graded ${selected.exercise} for ${selected.student} — score: ${score}/${selected.maxScore}`);
+    setScore('');
+    setFeedback('');
+  };
 
   const filtered = submissions.filter((s) => filter === 'ALL' || s.status === filter);
   const pending = submissions.filter((s) => s.status === 'PENDING').length;
@@ -97,7 +107,7 @@ export default function MentorGrading() {
             </p>
           </div>
 
-          {selected.status === 'PENDING' ? (
+          {selected.status === 'PENDING' && !graded[selected.id] ? (
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-medium text-gray-600 mb-1 block">
@@ -123,7 +133,11 @@ export default function MentorGrading() {
                   placeholder="Write constructive feedback for the student..."
                 />
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-xl hover:bg-emerald-800 transition-colors">
+              <button
+                onClick={handleSubmitGrade}
+                disabled={!score}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-xl hover:bg-emerald-800 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
+              >
                 <ClipboardCheck className="w-4 h-4" /> Submit Grade
               </button>
             </div>

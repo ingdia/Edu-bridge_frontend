@@ -4,6 +4,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User, UserRole } from '@/lib/types/user';
 import { mockUser } from '@/lib/api/mockData';
+import { logAction } from '@/lib/utils/auditLogger';
 
 const MOCK_ACCOUNTS: Record<string, { password: string; user: User }> = {
   'student@edubridge.rw': {
@@ -45,11 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     document.cookie = 'accessToken=mock-token; path=/; max-age=86400';
     setUser(account.user);
+    logAction(account.user.id, account.user.role, 'LOGIN', `User logged in: ${email}`);
     router.push(ROLE_REDIRECT[account.user.role]);
     return {};
   };
 
   const logout = () => {
+    if (user) logAction(user.id, user.role, 'LOGOUT', `User logged out: ${user.email}`);
     document.cookie = 'accessToken=; path=/; max-age=0';
     setUser(null);
     router.push('/login');

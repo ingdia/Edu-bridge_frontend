@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CalendarDays, Clock, Users, Video, Plus } from 'lucide-react';
 import { mockSessions } from '@/lib/api/mockData';
 import type { Session } from '@/lib/types/api';
+import { logAction } from '@/lib/utils/auditLogger';
 
 const pastSessions: Session[] = [
   { id: 'ses_p1', title: 'English Speaking Practice', description: 'Focused speaking practice session.', startTime: '2026-03-10T14:00:00Z', endTime: '2026-03-10T15:00:00Z', mentorId: 'mnt_001', studentIds: ['usr_123'], status: 'COMPLETED' },
@@ -15,8 +16,18 @@ const tabs = ['Upcoming', 'Past'];
 export default function MentorSessions() {
   const [activeTab, setActiveTab] = useState('Upcoming');
   const [showForm, setShowForm] = useState(false);
+  const [sessionTitle, setSessionTitle] = useState('');
+  const [sessionDate, setSessionDate] = useState('');
 
   const sessions = activeTab === 'Upcoming' ? mockSessions : pastSessions;
+
+  const handleSchedule = (e: React.FormEvent) => {
+    e.preventDefault();
+    logAction('mnt_001', 'MENTOR', 'SESSION_SCHEDULED', `Scheduled session: ${sessionTitle}`);
+    setShowForm(false);
+    setSessionTitle('');
+    setSessionDate('');
+  };
 
   return (
     <div className="space-y-6">
@@ -35,7 +46,7 @@ export default function MentorSessions() {
 
       {/* New Session Form */}
       {showForm && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <form onSubmit={handleSchedule} className="bg-white rounded-2xl border border-gray-100 p-5">
           <h2 className="text-sm font-semibold text-gray-900 mb-4">Schedule New Session</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
@@ -70,14 +81,14 @@ export default function MentorSessions() {
             </div>
           </div>
           <div className="flex gap-3 mt-4">
-            <button className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-xl hover:bg-emerald-800 transition-colors">
+            <button type="submit" className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-xl hover:bg-emerald-800 transition-colors">
               Schedule Session
             </button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors">
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors">
               Cancel
             </button>
           </div>
-        </div>
+        </form>
       )}
 
       {/* Tabs */}

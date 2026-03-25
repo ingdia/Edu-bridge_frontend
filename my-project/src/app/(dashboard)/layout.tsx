@@ -18,6 +18,7 @@ const studentNav = [
   { href: '/student/learning', label: 'Learning',   icon: BookOpen },
   { href: '/student/progress', label: 'My Progress',icon: TrendingUp },
   { href: '/student/career',   label: 'Career',     icon: Briefcase },
+  { href: '/student/sessions', label: 'Sessions',   icon: CalendarDays },
   { href: '/student/messages', label: 'Messages',   icon: MessageSquare },
   { href: '/student/profile',  label: 'My Profile', icon: UserCircle },
 ];
