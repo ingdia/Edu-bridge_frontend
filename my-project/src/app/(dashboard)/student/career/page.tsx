@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Briefcase, GraduationCap, Globe, MapPin, Calendar,
-  CheckCircle, FileText, ArrowRight, Search, Filter, X,
+  CheckCircle, FileText, ArrowRight, Search, Filter, X, Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { mockOpportunities } from '@/lib/api/mockData';
@@ -34,6 +34,8 @@ const applications = [
 export default function CareerPage() {
   const [filter, setFilter]       = useState<'ALL' | OpportunityType>('ALL');
   const [search, setSearch]         = useState('');
+  const [remoteOnly, setRemoteOnly] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [applying, setApplying]     = useState<Opportunity | null>(null);
   const [appNote, setAppNote]       = useState('');
   const [submitted, setSubmitted]   = useState<string[]>([]);
@@ -51,10 +53,11 @@ export default function CareerPage() {
   };
 
   const filtered = mockOpportunities.filter((o) => {
-    const matchType = filter === 'ALL' || o.type === filter;
+    const matchType   = filter === 'ALL' || o.type === filter;
     const matchSearch = o.title.toLowerCase().includes(search.toLowerCase()) ||
       o.organization.toLowerCase().includes(search.toLowerCase());
-    return matchType && matchSearch && o.isActive;
+    const matchRemote = !remoteOnly || o.isRemote;
+    return matchType && matchSearch && matchRemote && o.isActive;
   });
 
   const cvProgress = Math.round((cvSteps.filter((s) => s.done).length / cvSteps.length) * 100);
@@ -114,7 +117,7 @@ export default function CareerPage() {
         <div className="lg:col-span-2 space-y-4">
 
           {/* Search + filter */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 relative">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -125,10 +128,31 @@ export default function CareerPage() {
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-              <Filter className="w-4 h-4" />
-              Filter
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setFilterOpen(!filterOpen)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                  remoteOnly ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                Filter{remoteOnly ? ' (1)' : ''}
+              </button>
+              {filterOpen && (
+                <div className="absolute right-0 top-12 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl z-20 p-3 space-y-2">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest px-1">Filters</p>
+                  <label className="flex items-center gap-2.5 px-1 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={remoteOnly}
+                      onChange={(e) => { setRemoteOnly(e.target.checked); setFilterOpen(false); }}
+                      className="accent-emerald-700"
+                    />
+                    <span className="text-sm text-gray-700">Remote only</span>
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Type tabs */}
@@ -240,9 +264,14 @@ export default function CareerPage() {
             </div>
 
             <Link href="/student/career/cv-builder">
-              <Button variant="primary" size="sm" className="w-full">
+              <Button variant="primary" size="sm" className="w-full mb-2">
                 Continue Building CV
               </Button>
+            </Link>
+            <Link href="/student/career/cover-letter">
+              <button className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors">
+                <Mail className="w-3.5 h-3.5" /> Write Cover Letter
+              </button>
             </Link>
           </div>
 

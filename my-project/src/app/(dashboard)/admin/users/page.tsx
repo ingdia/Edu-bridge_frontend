@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, UserPlus, Users, GraduationCap, Shield } from 'lucide-react';
+import { Search, UserPlus, Users, GraduationCap, Shield, X, CheckCircle } from 'lucide-react';
 import { mockAllUsers } from '@/lib/api/mockData';
 import { cn } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 type RoleFilter = 'ALL' | 'STUDENT' | 'MENTOR' | 'ADMIN';
 
@@ -23,8 +24,24 @@ function formatDate(iso: string) {
 }
 
 export default function AdminUsersPage() {
-  const [search, setSearch]       = useState('');
-  const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
+  const [search, setSearch]         = useState('');
+  const [roleFilter, setRoleFilter]  = useState<RoleFilter>('ALL');
+  const [showAdd, setShowAdd]        = useState(false);
+  const [editUser, setEditUser]      = useState<typeof mockAllUsers[0] | null>(null);
+  const [newUser, setNewUser]        = useState({ fullName: '', email: '', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4' });
+
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`User ${newUser.fullName} added successfully`);
+    setShowAdd(false);
+    setNewUser({ fullName: '', email: '', role: 'STUDENT', school: 'GS Ruyenzi', gradeLevel: 'Senior 4' });
+  };
+
+  const handleEditUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('User updated successfully');
+    setEditUser(null);
+  };
 
   const filtered = mockAllUsers.filter((u) => {
     const matchRole   = roleFilter === 'ALL' || u.role === roleFilter;
@@ -42,12 +59,73 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* Add User Modal */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900">Add New User</h2>
+              <button onClick={() => setShowAdd(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleAddUser} className="space-y-3">
+              {([['Full Name','fullName','text'],['Email','email','email'],['School','school','text'],['Grade Level','gradeLevel','text']] as [string,keyof typeof newUser,string][]).map(([label,key,type]) => (
+                <div key={key}>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+                  <input type={type} required value={newUser[key]} onChange={(e) => setNewUser((p) => ({ ...p, [key]: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+                </div>
+              ))}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Role</label>
+                <select value={newUser.role} onChange={(e) => setNewUser((p) => ({ ...p, role: e.target.value as typeof newUser.role }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 bg-white">
+                  <option value="STUDENT">Student</option>
+                  <option value="MENTOR">Mentor</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors">Add User</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900">Edit User</h2>
+              <button onClick={() => setEditUser(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleEditUser} className="space-y-3">
+              {([['Full Name','fullName'],['Email','email'],['School','school']] as [string, keyof typeof editUser][]).map(([label,key]) => (
+                <div key={key}>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+                  <input type="text" value={String(editUser[key])} onChange={(e) => setEditUser((p) => p ? { ...p, [key]: e.target.value } : p)}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+                </div>
+              ))}
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setEditUser(null)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">User Management</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage students, mentors, and administrators.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+        <button
+          onClick={() => setShowAdd(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
           <UserPlus className="w-4 h-4" /> Add User
         </button>
       </div>
@@ -131,7 +209,9 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-5 py-3.5 text-gray-400 text-xs">{formatDate(u.joinedAt)}</td>
                       <td className="px-5 py-3.5">
-                        <button className="text-xs text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
+                        <button
+                          onClick={() => setEditUser(u)}
+                          className="text-xs text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
                           Edit
                         </button>
                       </td>

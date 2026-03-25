@@ -5,6 +5,7 @@ import { Upload, PenLine, CheckCircle, FileText, Trash2, Plus } from 'lucide-rea
 import { mockAllUsers } from '@/lib/api/mockData';
 import { cn } from '@/lib/utils';
 import { logAction } from '@/lib/utils/auditLogger';
+import toast from 'react-hot-toast';
 
 type EntryMode = 'manual' | 'upload';
 
@@ -34,8 +35,7 @@ export default function AdminReportsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     logAction('adm_001', 'ADMIN', mode === 'upload' ? 'REPORT_UPLOADED' : 'REPORT_MANUAL_ENTRY', `Report saved for student: ${selectedStudent}, term: ${term}`);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    toast.success('Report saved successfully');
     setGrades({});
     setSelectedStudent('');
     setUploadFile(null);

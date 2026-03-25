@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, Laptop, Briefcase, Plus, Users } from 'lucide-react';
+import { BookOpen, Laptop, Briefcase, Plus, Users, X } from 'lucide-react';
 import { mockAdminModules } from '@/lib/api/mockData';
 import { cn } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 type TypeFilter = 'ALL' | 'ENGLISH' | 'DIGITAL_LITERACY' | 'CAREER';
 
@@ -20,7 +21,23 @@ const diffConfig = {
 };
 
 export default function AdminModulesPage() {
-  const [filter, setFilter] = useState<TypeFilter>('ALL');
+  const [filter, setFilter]   = useState<TypeFilter>('ALL');
+  const [showAdd, setShowAdd] = useState(false);
+  const [editMod, setEditMod] = useState<typeof mockAdminModules[0] | null>(null);
+  const [newMod, setNewMod]   = useState({ title: '', type: 'ENGLISH', difficulty: 'BEGINNER' });
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`Module "${newMod.title}" added`);
+    setShowAdd(false);
+    setNewMod({ title: '', type: 'ENGLISH', difficulty: 'BEGINNER' });
+  };
+
+  const handleEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Module updated');
+    setEditMod(null);
+  };
 
   const filtered = mockAdminModules.filter((m) => filter === 'ALL' || m.type === filter);
 
@@ -33,12 +50,78 @@ export default function AdminModulesPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* Add Module Modal */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900">Add Module</h2>
+              <button onClick={() => setShowAdd(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleAdd} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Title</label>
+                <input required value={newMod.title} onChange={(e) => setNewMod((p) => ({ ...p, title: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Type</label>
+                  <select value={newMod.type} onChange={(e) => setNewMod((p) => ({ ...p, type: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <option value="ENGLISH">English</option>
+                    <option value="DIGITAL_LITERACY">Digital Literacy</option>
+                    <option value="CAREER">Career</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Difficulty</label>
+                  <select value={newMod.difficulty} onChange={(e) => setNewMod((p) => ({ ...p, difficulty: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <option value="BEGINNER">Beginner</option>
+                    <option value="INTERMEDIATE">Intermediate</option>
+                    <option value="ADVANCED">Advanced</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl">Add Module</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Module Modal */}
+      {editMod && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900">Edit Module</h2>
+              <button onClick={() => setEditMod(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleEdit} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Title</label>
+                <input value={editMod.title} onChange={(e) => setEditMod((p) => p ? { ...p, title: e.target.value } : p)}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setEditMod(null)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Module Management</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage English, digital literacy, and career modules.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
           <Plus className="w-4 h-4" /> Add Module
         </button>
       </div>
@@ -113,7 +196,7 @@ export default function AdminModulesPage() {
                   <Users className="w-3.5 h-3.5" /> {mod.enrolledStudents} enrolled
                 </span>
                 <span>{mod.exercises} exercise{mod.exercises !== 1 ? 's' : ''}</span>
-                <button className="text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
+                <button onClick={() => setEditMod(mod)} className="text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
                   Edit
                 </button>
               </div>

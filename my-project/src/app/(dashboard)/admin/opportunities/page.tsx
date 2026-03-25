@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Users, Calendar } from 'lucide-react';
+import { Plus, Users, Calendar, X } from 'lucide-react';
 import { mockAdminOpportunities } from '@/lib/api/mockData';
 import { cn } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 type TypeFilter = 'ALL' | 'SCHOLARSHIP' | 'INTERNSHIP' | 'JOB';
 
@@ -22,7 +23,23 @@ function isExpired(iso: string) {
 }
 
 export default function AdminOpportunitiesPage() {
-  const [filter, setFilter] = useState<TypeFilter>('ALL');
+  const [filter, setFilter]   = useState<TypeFilter>('ALL');
+  const [showAdd, setShowAdd] = useState(false);
+  const [editOpp, setEditOpp] = useState<typeof mockAdminOpportunities[0] | null>(null);
+  const [newOpp, setNewOpp]   = useState({ title: '', organization: '', type: 'SCHOLARSHIP', deadline: '' });
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`Opportunity "${newOpp.title}" added`);
+    setShowAdd(false);
+    setNewOpp({ title: '', organization: '', type: 'SCHOLARSHIP', deadline: '' });
+  };
+
+  const handleEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Opportunity updated');
+    setEditOpp(null);
+  };
 
   const filtered = mockAdminOpportunities.filter((o) => filter === 'ALL' || o.type === filter);
 
@@ -35,12 +52,71 @@ export default function AdminOpportunitiesPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* Add Opportunity Modal */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900">Add Opportunity</h2>
+              <button onClick={() => setShowAdd(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleAdd} className="space-y-3">
+              {([['Title','title','text'],['Organisation','organization','text'],['Deadline','deadline','date']] as [string,keyof typeof newOpp,string][]).map(([label,key,type]) => (
+                <div key={key}>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+                  <input type={type} required value={newOpp[key]} onChange={(e) => setNewOpp((p) => ({ ...p, [key]: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+                </div>
+              ))}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Type</label>
+                <select value={newOpp.type} onChange={(e) => setNewOpp((p) => ({ ...p, type: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+                  <option value="SCHOLARSHIP">Scholarship</option>
+                  <option value="INTERNSHIP">Internship</option>
+                  <option value="JOB">Job</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Opportunity Modal */}
+      {editOpp && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-gray-900">Edit Opportunity</h2>
+              <button onClick={() => setEditOpp(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleEdit} className="space-y-3">
+              {([['Title','title'],['Organisation','organization']] as [string, keyof typeof editOpp][]).map(([label,key]) => (
+                <div key={key}>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+                  <input value={String(editOpp[key])} onChange={(e) => setEditOpp((p) => p ? { ...p, [key]: e.target.value } : p)}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
+                </div>
+              ))}
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setEditOpp(null)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Opportunities</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage scholarships, internships, and job listings for students.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
           <Plus className="w-4 h-4" /> Add Opportunity
         </button>
       </div>
@@ -114,7 +190,7 @@ export default function AdminOpportunitiesPage() {
                   <Users className="w-3.5 h-3.5" />
                   {opp.applicants} applicants
                 </span>
-                <span className="ml-auto text-emerald-700 font-semibold hover:text-emerald-900 cursor-pointer transition-colors">
+                <span onClick={() => setEditOpp(opp)} className="ml-auto text-emerald-700 font-semibold hover:text-emerald-900 cursor-pointer transition-colors">
                   Edit
                 </span>
               </div>
