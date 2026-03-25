@@ -1,20 +1,23 @@
 'use client';
 
-import { Users, CalendarDays, ClipboardCheck, TrendingUp, Clock, CheckCircle, Star } from 'lucide-react';
+import { Users, CalendarDays, ClipboardCheck, TrendingUp, Clock, Star } from 'lucide-react';
 import { mockMentorStats, mockSessions } from '@/lib/api/mockData';
+import { useAuthContext } from '@/lib/contexts/AuthContext';
 
 const stats = [
-  { label: 'Students Assigned', value: mockMentorStats.totalStudents, icon: Users, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-  { label: 'Sessions This Week', value: 3, icon: CalendarDays, color: 'text-amber-600', bg: 'bg-amber-50' },
-  { label: 'Pending Reviews', value: 7, icon: ClipboardCheck, color: 'text-violet-600', bg: 'bg-violet-50' },
-  { label: 'Avg Student Score', value: `${mockMentorStats.completionRate}%`, icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { label: 'Students Assigned', value: mockMentorStats.totalStudents, icon: Users,         color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  { label: 'Sessions This Week', value: 3,                             icon: CalendarDays,  color: 'text-amber-600',   bg: 'bg-amber-50' },
+  { label: 'Pending Reviews',    value: 7,                             icon: ClipboardCheck,color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  { label: 'Avg Student Score',  value: `${mockMentorStats.completionRate}%`, icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50' },
 ];
 
 export default function MentorOverview() {
+  const { user } = useAuthContext();
+  const firstName = user?.fullName.split(' ')[0] ?? 'Mentor';
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Welcome back, Mentor </h1>
+        <h1 className="text-xl font-bold text-gray-900">Welcome back, {firstName}</h1>
         <p className="text-sm text-gray-500 mt-0.5">Here's what's happening with your students today.</p>
       </div>
 

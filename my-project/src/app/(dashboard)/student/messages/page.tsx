@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Send, Search, MoreVertical, Phone, Video } from 'lucide-react';
 
-const conversations = [
+type Message = { id: number; from: 'me' | 'them'; text: string; time: string };
+
+const initialConversations = [
   {
     id: 'conv_1',
     name: 'Mr. David Mugisha',
@@ -14,11 +16,11 @@ const conversations = [
     unread: 2,
     online: true,
     messages: [
-      { id: 1, from: 'them', text: 'Hello! How are you getting on with the English modules?', time: '9:00 AM' },
-      { id: 2, from: 'me', text: 'Hi Mr. Mugisha! I finished the listening exercise. It was challenging but I scored 85%.', time: '9:15 AM' },
-      { id: 3, from: 'them', text: 'That\'s excellent! 85% is a great score for that exercise.', time: '9:20 AM' },
-      { id: 4, from: 'me', text: 'Thank you! I\'m struggling a bit with the writing tasks though.', time: '9:45 AM' },
-      { id: 5, from: 'them', text: 'Great work on your listening exercise! Let\'s review your writing next session.', time: '10:32 AM' },
+      { id: 1, from: 'them' as const, text: 'Hello! How are you getting on with the English modules?', time: '9:00 AM' },
+      { id: 2, from: 'me'   as const, text: 'Hi Mr. Mugisha! I finished the listening exercise. It was challenging but I scored 85%.', time: '9:15 AM' },
+      { id: 3, from: 'them' as const, text: 'That\'s excellent! 85% is a great score for that exercise.', time: '9:20 AM' },
+      { id: 4, from: 'me'   as const, text: 'Thank you! I\'m struggling a bit with the writing tasks though.', time: '9:45 AM' },
+      { id: 5, from: 'them' as const, text: 'Great work on your listening exercise! Let\'s review your writing next session.', time: '10:32 AM' },
     ],
   },
   {
@@ -31,9 +33,9 @@ const conversations = [
     unread: 0,
     online: false,
     messages: [
-      { id: 1, from: 'them', text: 'Hi! I saw you started the CV builder. How is it going?', time: 'Yesterday 2:00 PM' },
-      { id: 2, from: 'me', text: 'I\'ve filled in my personal info and education sections.', time: 'Yesterday 2:30 PM' },
-      { id: 3, from: 'them', text: 'I\'ve reviewed your CV draft. A few suggestions to share.', time: 'Yesterday 4:00 PM' },
+      { id: 1, from: 'them' as const, text: 'Hi! I saw you started the CV builder. How is it going?', time: 'Yesterday 2:00 PM' },
+      { id: 2, from: 'me'   as const, text: 'I\'ve filled in my personal info and education sections.', time: 'Yesterday 2:30 PM' },
+      { id: 3, from: 'them' as const, text: 'I\'ve reviewed your CV draft. A few suggestions to share.', time: 'Yesterday 4:00 PM' },
     ],
   },
   {
@@ -46,20 +48,37 @@ const conversations = [
     unread: 0,
     online: true,
     messages: [
-      { id: 1, from: 'them', text: 'Welcome to EDU-Bridge! Let us know if you need any help.', time: 'Mar 10' },
+      { id: 1, from: 'them' as const, text: 'Welcome to EDU-Bridge! Let us know if you need any help.', time: 'Mar 10' },
     ],
   },
 ];
 
 export default function MessagesPage() {
-  const [activeConv, setActiveConv] = useState(conversations[0].id);
-  const [input, setInput] = useState('');
+  const [activeConvId, setActiveConvId] = useState('conv_1');
+  const [allMessages, setAllMessages]   = useState<Record<string, Message[]>>(
+    Object.fromEntries(initialConversations.map((c) => [c.id, c.messages]))
+  );
+  const [input, setInput]   = useState('');
   const [search, setSearch] = useState('');
+  const bottomRef           = useRef<HTMLDivElement>(null);
 
-  const conv = conversations.find((c) => c.id === activeConv)!;
-  const filtered = conversations.filter((c) =>
+  const conv     = initialConversations.find((c) => c.id === activeConvId)!;
+  const messages = allMessages[activeConvId] ?? [];
+  const filtered = initialConversations.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const send = () => {
+    if (!input.trim()) return;
+    const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const msg: Message = { id: Date.now(), from: 'me', text: input.trim(), time: now };
+    setAllMessages((prev) => ({ ...prev, [activeConvId]: [...(prev[activeConvId] ?? []), msg] }));
+    setInput('');
+  };
 
   const initials = (name: string) => name.split(' ').map((n) => n[0]).join('').slice(0, 2);
 
@@ -88,9 +107,9 @@ export default function MessagesPage() {
               {filtered.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => setActiveConv(c.id)}
+                  onClick={() => { setActiveConvId(c.id); setInput(''); }}
                   className={`w-full flex items-start gap-3 p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 ${
-                    activeConv === c.id ? 'bg-emerald-50 border-l-2 border-l-emerald-600' : ''
+                    activeConvId === c.id ? 'bg-emerald-50 border-l-2 border-l-emerald-600' : ''
                   }`}
                 >
                   <div className="relative shrink-0">
@@ -101,16 +120,16 @@ export default function MessagesPage() {
                         {initials(c.name)}
                       </div>
                     )}
-                    {c.online && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
-                    )}
+                    {c.online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="text-sm font-semibold text-gray-900 truncate">{c.name}</span>
                       <span className="text-xs text-gray-400 shrink-0 ml-2">{c.time}</span>
                     </div>
-                    <p className="text-xs text-gray-400 truncate">{c.lastMessage}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {allMessages[c.id]?.at(-1)?.text ?? c.lastMessage}
+                    </p>
                   </div>
                   {c.unread > 0 && (
                     <span className="w-5 h-5 bg-emerald-600 text-white text-xs font-bold rounded-full flex items-center justify-center shrink-0 mt-1">
@@ -125,7 +144,7 @@ export default function MessagesPage() {
           {/* Chat panel */}
           <div className="flex-1 flex flex-col min-w-0">
 
-            {/* Chat header */}
+            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -136,9 +155,7 @@ export default function MessagesPage() {
                       {initials(conv.name)}
                     </div>
                   )}
-                  {conv.online && (
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
-                  )}
+                  {conv.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />}
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900 text-sm">{conv.name}</div>
@@ -146,21 +163,15 @@ export default function MessagesPage() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                  <Phone className="w-4 h-4" />
-                </button>
-                <button className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                  <Video className="w-4 h-4" />
-                </button>
-                <button className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                  <MoreVertical className="w-4 h-4" />
-                </button>
+                <button className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"><Phone className="w-4 h-4" /></button>
+                <button className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"><Video className="w-4 h-4" /></button>
+                <button className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"><MoreVertical className="w-4 h-4" /></button>
               </div>
             </div>
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              {conv.messages.map((msg) => {
+              {messages.map((msg) => {
                 const isMe = msg.from === 'me';
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -169,11 +180,9 @@ export default function MessagesPage() {
                         {initials(conv.name)}
                       </div>
                     )}
-                    <div className={`max-w-[70%] ${isMe ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                    <div className={`max-w-[70%] flex flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
                       <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                        isMe
-                          ? 'bg-emerald-700 text-white rounded-br-sm'
-                          : 'bg-gray-100 text-gray-800 rounded-bl-sm'
+                        isMe ? 'bg-emerald-700 text-white rounded-br-sm' : 'bg-gray-100 text-gray-800 rounded-bl-sm'
                       }`}>
                         {msg.text}
                       </div>
@@ -182,6 +191,7 @@ export default function MessagesPage() {
                   </div>
                 );
               })}
+              <div ref={bottomRef} />
             </div>
 
             {/* Input */}
@@ -192,11 +202,11 @@ export default function MessagesPage() {
                   placeholder="Type a message..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && input.trim()) setInput(''); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
                   className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
                 />
                 <button
-                  onClick={() => setInput('')}
+                  onClick={send}
                   disabled={!input.trim()}
                   className="w-8 h-8 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-200 rounded-xl flex items-center justify-center transition-colors shrink-0"
                 >
