@@ -9,7 +9,7 @@ const values = [
     icon: Heart,
     title: 'Equity First',
     description: "Every student deserves access to quality education tools, regardless of their school's resources.",
-    color: 'bg-rose-50 text-rose-600',
+    color: 'bg-emerald-50 text-emerald-600',
   },
   {
     icon: Lightbulb,
@@ -21,7 +21,7 @@ const values = [
     icon: Users,
     title: 'Community Driven',
     description: 'Mentors, teachers, and students work together to create a supportive learning ecosystem.',
-    color: 'bg-blue-50 text-blue-600',
+    color: 'bg-emerald-50 text-emerald-600',
   },
   {
     icon: Globe,

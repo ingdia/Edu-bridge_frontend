@@ -24,7 +24,7 @@ const cvSteps = [
 ];
 
 const applications = [
-  { title: 'ALU Scholarship', org: 'African Leadership University', status: 'Submitted', date: 'Mar 10', color: 'bg-blue-100 text-blue-700' },
+  { title: 'ALU Scholarship', org: 'African Leadership University', status: 'Submitted', date: 'Mar 10', color: 'bg-emerald-100 text-emerald-700' },
   { title: 'Tech Hub Internship', org: 'Tech Hub Rwanda', status: 'Under Review', date: 'Mar 15', color: 'bg-amber-100 text-amber-700' },
 ];
 

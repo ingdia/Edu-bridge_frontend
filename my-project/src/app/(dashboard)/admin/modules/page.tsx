@@ -9,14 +9,14 @@ type TypeFilter = 'ALL' | 'ENGLISH' | 'DIGITAL_LITERACY' | 'CAREER';
 
 const typeConfig = {
   ENGLISH:          { label: 'English',          className: 'bg-emerald-100 text-emerald-700', icon: BookOpen },
-  DIGITAL_LITERACY: { label: 'Digital Literacy', className: 'bg-blue-100 text-blue-700',       icon: Laptop },
+  DIGITAL_LITERACY: { label: 'Digital Literacy', className: 'bg-amber-100 text-amber-700',   icon: Laptop },
   CAREER:           { label: 'Career',           className: 'bg-amber-100 text-amber-700',     icon: Briefcase },
 };
 
 const diffConfig = {
   BEGINNER:     'bg-emerald-50 text-emerald-600',
   INTERMEDIATE: 'bg-amber-50 text-amber-600',
-  ADVANCED:     'bg-red-50 text-red-600',
+  ADVANCED:     'bg-gray-100 text-gray-600',
 };
 
 export default function AdminModulesPage() {
@@ -38,7 +38,7 @@ export default function AdminModulesPage() {
           <h1 className="text-xl font-bold text-gray-900">Module Management</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage English, digital literacy, and career modules.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
           <Plus className="w-4 h-4" /> Add Module
         </button>
       </div>
@@ -52,8 +52,8 @@ export default function AdminModulesPage() {
             className={cn(
               'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors',
               filter === t
-                ? 'bg-violet-700 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:border-violet-300'
+                ? 'bg-emerald-700 text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:border-emerald-300'
             )}
           >
             {t === 'ALL' ? 'All' : t === 'DIGITAL_LITERACY' ? 'Digital Literacy' : t.charAt(0) + t.slice(1).toLowerCase()} ({counts[t]})
@@ -69,7 +69,7 @@ export default function AdminModulesPage() {
           const Icon = type.icon;
 
           return (
-            <div key={mod.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-violet-200 hover:shadow-sm transition-all flex flex-col gap-4">
+            <div key={mod.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-emerald-200 hover:shadow-sm transition-all flex flex-col gap-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${type.className}`}>
@@ -102,7 +102,7 @@ export default function AdminModulesPage() {
                 </div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-violet-500 rounded-full transition-all duration-500"
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${mod.completionRate}%` }}
                   />
                 </div>
@@ -113,7 +113,7 @@ export default function AdminModulesPage() {
                   <Users className="w-3.5 h-3.5" /> {mod.enrolledStudents} enrolled
                 </span>
                 <span>{mod.exercises} exercise{mod.exercises !== 1 ? 's' : ''}</span>
-                <button className="text-violet-700 font-semibold hover:text-violet-900 transition-colors">
+                <button className="text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
                   Edit
                 </button>
               </div>

@@ -12,7 +12,7 @@ import {
 const roleColors: Record<string, string> = {
   STUDENT: 'bg-emerald-100 text-emerald-700',
   MENTOR:  'bg-amber-100 text-amber-700',
-  ADMIN:   'bg-violet-100 text-violet-700',
+  ADMIN:   'bg-gray-100 text-gray-700',
 };
 
 function timeAgo(iso: string) {
@@ -25,14 +25,14 @@ function timeAgo(iso: string) {
 
 export default function AdminOverview() {
   const stats = [
-    { label: 'Total Students',    value: mockAdminStats.totalStudents,          icon: Users,       color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
-    { label: 'Active Mentors',    value: mockAdminStats.totalMentors,            icon: UserPlus,    color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/users' },
-    { label: 'Active Modules',    value: mockAdminStats.activeModules,           icon: BookOpen,    color: 'text-blue-600',    bg: 'bg-blue-50',    href: '/admin/modules' },
-    { label: 'Completion Rate',   value: `${mockAdminStats.platformCompletionRate}%`, icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50', href: '/admin/analytics' },
-    { label: 'New Users (Week)',  value: mockAdminStats.newUsersThisWeek,        icon: Activity,    color: 'text-rose-600',    bg: 'bg-rose-50',    href: '/admin/users' },
-    { label: 'Sessions (Week)',   value: mockAdminStats.sessionsThisWeek,        icon: CalendarDays,color: 'text-teal-600',    bg: 'bg-teal-50',    href: '/admin/analytics' },
-    { label: 'Pending Reports',   value: mockAdminStats.pendingReports,          icon: FileText,    color: 'text-orange-600',  bg: 'bg-orange-50',  href: '/admin/analytics' },
-    { label: 'Opportunities',     value: mockAdminStats.activeOpportunities,     icon: Briefcase,   color: 'text-indigo-600',  bg: 'bg-indigo-50',  href: '/admin/opportunities' },
+    { label: 'Total Students',   value: mockAdminStats.totalStudents,               icon: Users,       color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
+    { label: 'Active Mentors',   value: mockAdminStats.totalMentors,                 icon: UserPlus,    color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/users' },
+    { label: 'Active Modules',   value: mockAdminStats.activeModules,                icon: BookOpen,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/modules' },
+    { label: 'Completion Rate',  value: `${mockAdminStats.platformCompletionRate}%`, icon: TrendingUp,  color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/analytics' },
+    { label: 'New Users (Week)', value: mockAdminStats.newUsersThisWeek,             icon: Activity,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
+    { label: 'Sessions (Week)',  value: mockAdminStats.sessionsThisWeek,             icon: CalendarDays,color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/analytics' },
+    { label: 'Pending Reports',  value: mockAdminStats.pendingReports,               icon: FileText,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/analytics' },
+    { label: 'Opportunities',    value: mockAdminStats.activeOpportunities,          icon: Briefcase,   color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/opportunities' },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function AdminOverview() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ label, value, icon: Icon, color, bg, href }) => (
-          <Link key={label} href={href} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3 hover:border-violet-200 hover:shadow-sm transition-all">
+          <Link key={label} href={href} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3 hover:border-emerald-200 hover:shadow-sm transition-all">
             <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
               <Icon className={`w-5 h-5 ${color}`} />
             </div>
@@ -63,7 +63,7 @@ export default function AdminOverview() {
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-900">Top Performers</h2>
-            <Link href="/admin/analytics" className="text-xs text-violet-700 font-semibold hover:text-violet-800 flex items-center gap-1">
+            <Link href="/admin/analytics" className="text-xs text-emerald-700 font-semibold hover:text-emerald-800 flex items-center gap-1">
               View all <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -77,8 +77,8 @@ export default function AdminOverview() {
                   <p className="text-sm font-medium text-gray-900 truncate">{s.fullName}</p>
                   <p className="text-xs text-gray-500">{s.completedModules} modules completed</p>
                 </div>
-                <div className="flex items-center gap-1 text-amber-500">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
+                <div className="flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   <span className="text-sm font-semibold text-gray-900">{s.averageScore}%</span>
                 </div>
               </div>
@@ -86,24 +86,24 @@ export default function AdminOverview() {
           </div>
         </div>
 
-        {/* Quick Links */}
-        <div className="bg-violet-900 rounded-2xl p-5">
+        {/* Quick Actions */}
+        <div className="bg-emerald-900 rounded-2xl p-5">
           <h2 className="font-bold text-white mb-4">Quick Actions</h2>
           <div className="space-y-2">
             {[
-              { label: 'Manage Users',         href: '/admin/users',         icon: Users },
-              { label: 'Manage Modules',        href: '/admin/modules',       icon: BookOpen },
-              { label: 'View Analytics',        href: '/admin/analytics',     icon: TrendingUp },
-              { label: 'Manage Opportunities',  href: '/admin/opportunities', icon: Briefcase },
+              { label: 'Manage Users',        href: '/admin/users',         icon: Users },
+              { label: 'Manage Modules',       href: '/admin/modules',       icon: BookOpen },
+              { label: 'View Analytics',       href: '/admin/analytics',     icon: TrendingUp },
+              { label: 'Manage Opportunities', href: '/admin/opportunities', icon: Briefcase },
             ].map(({ label, href, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors group"
               >
-                <Icon className="w-4 h-4 text-violet-300 shrink-0" />
+                <Icon className="w-4 h-4 text-emerald-300 shrink-0" />
                 <span className="text-sm text-white font-medium flex-1">{label}</span>
-                <ChevronRight className="w-4 h-4 text-violet-400 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             ))}
           </div>

@@ -6,7 +6,7 @@ import { mockAdminStats, mockMentorStats, mockAdminModules, mockAdminActivity } 
 const roleColors: Record<string, string> = {
   STUDENT: 'bg-emerald-100 text-emerald-700',
   MENTOR:  'bg-amber-100 text-amber-700',
-  ADMIN:   'bg-violet-100 text-violet-700',
+  ADMIN:   'bg-gray-100 text-gray-700',
 };
 
 function timeAgo(iso: string) {
@@ -19,10 +19,10 @@ function timeAgo(iso: string) {
 
 export default function AdminAnalyticsPage() {
   const overallStats = [
-    { label: 'Total Students',    value: mockAdminStats.totalStudents,          icon: Users,      color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Platform Completion', value: `${mockAdminStats.platformCompletionRate}%`, icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50' },
-    { label: 'Active Modules',    value: mockAdminStats.activeModules,           icon: BookOpen,   color: 'text-blue-600',    bg: 'bg-blue-50' },
-    { label: 'Sessions This Week',value: mockAdminStats.sessionsThisWeek,        icon: Activity,   color: 'text-amber-600',   bg: 'bg-amber-50' },
+    { label: 'Total Students',      value: mockAdminStats.totalStudents,               icon: Users,      color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Platform Completion', value: `${mockAdminStats.platformCompletionRate}%`, icon: TrendingUp, color: 'text-amber-600',   bg: 'bg-amber-50' },
+    { label: 'Active Modules',      value: mockAdminStats.activeModules,               icon: BookOpen,   color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Sessions This Week',  value: mockAdminStats.sessionsThisWeek,            icon: Activity,   color: 'text-amber-600',   bg: 'bg-amber-50' },
   ];
 
   return (
@@ -62,7 +62,7 @@ export default function AdminAnalyticsPage() {
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-violet-500 rounded-full transition-all duration-500"
+                      className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                       style={{ width: `${mod.completionRate}%` }}
                     />
                   </div>
@@ -98,11 +98,11 @@ export default function AdminAnalyticsPage() {
           <div className="mt-5 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-gray-600">Platform Average Score</span>
-              <span className="text-sm font-bold text-violet-700">{mockAdminStats.platformCompletionRate}%</span>
+              <span className="text-sm font-bold text-emerald-700">{mockAdminStats.platformCompletionRate}%</span>
             </div>
             <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full"
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
                 style={{ width: `${mockAdminStats.platformCompletionRate}%` }}
               />
             </div>

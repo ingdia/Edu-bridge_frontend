@@ -10,7 +10,7 @@ type RoleFilter = 'ALL' | 'STUDENT' | 'MENTOR' | 'ADMIN';
 const roleConfig = {
   STUDENT: { label: 'Student', className: 'bg-emerald-100 text-emerald-700', icon: GraduationCap },
   MENTOR:  { label: 'Mentor',  className: 'bg-amber-100 text-amber-700',     icon: Users },
-  ADMIN:   { label: 'Admin',   className: 'bg-violet-100 text-violet-700',   icon: Shield },
+  ADMIN:   { label: 'Admin',   className: 'bg-gray-100 text-gray-700',       icon: Shield },
 };
 
 const statusConfig = {
@@ -47,7 +47,7 @@ export default function AdminUsersPage() {
           <h1 className="text-xl font-bold text-gray-900">User Management</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage students, mentors, and administrators.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
           <UserPlus className="w-4 h-4" /> Add User
         </button>
       </div>
@@ -61,7 +61,7 @@ export default function AdminUsersPage() {
             placeholder="Search by name or email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 bg-white"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
           />
         </div>
         <div className="flex gap-1.5 flex-wrap">
@@ -72,8 +72,8 @@ export default function AdminUsersPage() {
               className={cn(
                 'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors',
                 roleFilter === r
-                  ? 'bg-violet-700 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-violet-300'
+                  ? 'bg-emerald-700 text-white'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-emerald-300'
               )}
             >
               {r === 'ALL' ? 'All' : r.charAt(0) + r.slice(1).toLowerCase()} ({counts[r]})
@@ -111,7 +111,7 @@ export default function AdminUsersPage() {
                     <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700 shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700 shrink-0">
                             {initials}
                           </div>
                           <span className="font-medium text-gray-900">{u.fullName}</span>
@@ -131,7 +131,7 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-5 py-3.5 text-gray-400 text-xs">{formatDate(u.joinedAt)}</td>
                       <td className="px-5 py-3.5">
-                        <button className="text-xs text-violet-700 font-semibold hover:text-violet-900 transition-colors">
+                        <button className="text-xs text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
                           Edit
                         </button>
                       </td>

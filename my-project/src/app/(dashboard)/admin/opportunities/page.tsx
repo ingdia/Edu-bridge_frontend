@@ -10,7 +10,7 @@ type TypeFilter = 'ALL' | 'SCHOLARSHIP' | 'INTERNSHIP' | 'JOB';
 const typeConfig = {
   SCHOLARSHIP: { label: 'Scholarship', className: 'bg-emerald-100 text-emerald-700' },
   INTERNSHIP:  { label: 'Internship',  className: 'bg-amber-100 text-amber-700' },
-  JOB:         { label: 'Job',         className: 'bg-blue-100 text-blue-700' },
+  JOB:         { label: 'Job',         className: 'bg-gray-100 text-gray-700' },
 };
 
 function formatDeadline(iso: string) {
@@ -40,7 +40,7 @@ export default function AdminOpportunitiesPage() {
           <h1 className="text-xl font-bold text-gray-900">Opportunities</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage scholarships, internships, and job listings for students.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
           <Plus className="w-4 h-4" /> Add Opportunity
         </button>
       </div>
@@ -51,7 +51,7 @@ export default function AdminOpportunitiesPage() {
           { label: 'Total',       value: counts.ALL,        className: 'bg-gray-50 border-gray-100' },
           { label: 'Scholarships',value: counts.SCHOLARSHIP, className: 'bg-emerald-50 border-emerald-100' },
           { label: 'Internships', value: counts.INTERNSHIP,  className: 'bg-amber-50 border-amber-100' },
-          { label: 'Jobs',        value: counts.JOB,         className: 'bg-blue-50 border-blue-100' },
+          { label: 'Jobs',        value: counts.JOB,         className: 'bg-gray-50 border-gray-100' },
         ].map(({ label, value, className }) => (
           <div key={label} className={`rounded-2xl border p-4 ${className}`}>
             <div className="text-2xl font-bold text-gray-900">{value}</div>
@@ -69,8 +69,8 @@ export default function AdminOpportunitiesPage() {
             className={cn(
               'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors',
               filter === t
-                ? 'bg-violet-700 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:border-violet-300'
+                ? 'bg-emerald-700 text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:border-emerald-300'
             )}
           >
             {t === 'ALL' ? 'All' : t.charAt(0) + t.slice(1).toLowerCase()} ({counts[t]})
@@ -85,7 +85,7 @@ export default function AdminOpportunitiesPage() {
           const expired = isExpired(opp.deadline);
 
           return (
-            <div key={opp.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-violet-200 hover:shadow-sm transition-all flex flex-col gap-3">
+            <div key={opp.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-emerald-200 hover:shadow-sm transition-all flex flex-col gap-3">
               <div className="flex items-start justify-between gap-2">
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${type.className}`}>
                   {type.label}
@@ -114,7 +114,7 @@ export default function AdminOpportunitiesPage() {
                   <Users className="w-3.5 h-3.5" />
                   {opp.applicants} applicants
                 </span>
-                <span className="ml-auto text-violet-700 font-semibold hover:text-violet-900 cursor-pointer transition-colors">
+                <span className="ml-auto text-emerald-700 font-semibold hover:text-emerald-900 cursor-pointer transition-colors">
                   Edit
                 </span>
               </div>

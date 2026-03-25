@@ -19,7 +19,7 @@ const contactInfo = [
     label: 'Find Us',
     value: 'Kigali, Rwanda',
     sub: 'KG 123 St, Gasabo District',
-    color: 'bg-blue-50 text-blue-700',
+    color: 'bg-amber-50 text-amber-700',
   },
   {
     icon: Clock,

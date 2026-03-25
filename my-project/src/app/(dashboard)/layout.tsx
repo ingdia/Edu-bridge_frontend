@@ -20,6 +20,8 @@ import {
   Users,
   CalendarDays,
   ClipboardCheck,
+  UserCircle,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mockUser } from '@/lib/api/mockData';
@@ -31,6 +33,7 @@ const studentNav = [
   { href: '/student/progress', label: 'My Progress', icon: TrendingUp },
   { href: '/student/career',   label: 'Career',      icon: Briefcase },
   { href: '/student/messages', label: 'Messages',    icon: MessageSquare },
+  { href: '/student/profile',  label: 'My Profile',  icon: UserCircle },
 ];
 
 const mentorNav = [
@@ -47,6 +50,7 @@ const adminNav = [
   { href: '/admin/modules',       label: 'Modules',      icon: BookOpen },
   { href: '/admin/analytics',     label: 'Analytics',    icon: TrendingUp },
   { href: '/admin/opportunities', label: 'Opportunities',icon: Briefcase },
+  { href: '/admin/reports',       label: 'Reports',      icon: FileText },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -65,7 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const settingsHref = isAdmin ? '/admin/settings' : isMentor ? '/mentor/settings' : '/student/settings';
 
   const theme = isAdmin
-    ? { sidebar: 'border-violet-200', logo: 'bg-violet-50 border-violet-100', logoIcon: 'text-violet-700', active: 'bg-violet-50 text-violet-700', dot: 'bg-amber-400', avatar: 'bg-violet-700', topbar: 'border-violet-100', sidebarBg: 'bg-gray-50', topbarBg: 'bg-gray-50' }
+    ? { sidebar: 'border-amber-200', logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-amber-100', sidebarBg: 'bg-gray-50', topbarBg: 'bg-gray-50' }
     : isMentor
     ? { sidebar: 'border-emerald-200', logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-emerald-200', sidebarBg: 'bg-gray-50', topbarBg: 'bg-gray-50' }
     : { sidebar: 'border-amber-100',  logo: 'bg-emerald-50 border-emerald-100', logoIcon: 'text-emerald-700', active: 'bg-emerald-50 text-emerald-700', dot: 'bg-amber-400', avatar: 'bg-emerald-700', topbar: 'border-gray-100', sidebarBg: 'bg-white', topbarBg: 'bg-white' };

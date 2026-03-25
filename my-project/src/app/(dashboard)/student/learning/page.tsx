@@ -24,7 +24,7 @@ const moduleTypeConfig: Record<string, { bg: string; text: string; border: strin
 const difficultyConfig: Record<string, string> = {
   BEGINNER:     'bg-emerald-100 text-emerald-700',
   INTERMEDIATE: 'bg-amber-100 text-amber-700',
-  ADVANCED:     'bg-red-100 text-red-700',
+  ADVANCED:     'bg-gray-100 text-gray-600',
 };
 
 export default function LearningPage() {

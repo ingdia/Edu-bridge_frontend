@@ -35,8 +35,8 @@ export default function ProgressPage() {
   const summaryCards = [
     { label: 'Overall Score', value: `${avgScore}%`, icon: Award, color: 'bg-amber-50 text-amber-600', border: 'border-amber-100' },
     { label: 'Modules Done', value: `${completed}/${total}`, icon: CheckCircle, color: 'bg-emerald-50 text-emerald-700', border: 'border-emerald-100' },
-    { label: 'Exercises Done', value: `${mockProgress.modules.reduce((a, m) => a + m.completedExercises, 0)}`, icon: Target, color: 'bg-blue-50 text-blue-600', border: 'border-blue-100' },
-    { label: 'Streak', value: '6 weeks', icon: TrendingUp, color: 'bg-orange-50 text-orange-600', border: 'border-orange-100' },
+    { label: 'Exercises Done', value: `${mockProgress.modules.reduce((a, m) => a + m.completedExercises, 0)}`, icon: Target, color: 'bg-emerald-50 text-emerald-700', border: 'border-emerald-100' },
+    { label: 'Streak', value: '6 weeks', icon: TrendingUp, color: 'bg-amber-50 text-amber-600', border: 'border-amber-100' },
   ];
 
   return (
@@ -168,7 +168,7 @@ export default function ProgressPage() {
             { action: 'Completed exercise: Email Essentials', time: '2 hours ago', icon: CheckCircle, color: 'text-emerald-600' },
             { action: 'Started module: Reading Comprehension', time: 'Yesterday', icon: Clock, color: 'text-amber-600' },
             { action: 'Scored 85% on Listening Basics', time: '2 days ago', icon: Award, color: 'text-amber-500' },
-            { action: 'Joined mentorship session', time: '3 days ago', icon: TrendingUp, color: 'text-blue-500' },
+            { action: 'Joined mentorship session', time: '3 days ago', icon: TrendingUp, color: 'text-emerald-600' },
           ].map(({ action, time, icon: Icon, color }) => (
             <div key={action} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
               <Icon className={`w-4 h-4 shrink-0 ${color}`} />

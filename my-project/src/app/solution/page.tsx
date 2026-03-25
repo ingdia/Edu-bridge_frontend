@@ -233,7 +233,7 @@ export default function SolutionPage() {
               {[
                 { step: '01', title: 'Sign Up Free', desc: 'Create an account with your school email. No device needed — use your school computer lab.', color: 'bg-emerald-500' },
                 { step: '02', title: 'Learn & Practice', desc: 'Work through English and digital modules at your own pace, with mentor guidance each week.', color: 'bg-amber-500' },
-                { step: '03', title: 'Unlock Opportunities', desc: 'Build your CV, get matched with scholarships and jobs, and apply with confidence.', color: 'bg-blue-500' },
+                { step: '03', title: 'Unlock Opportunities', desc: 'Build your CV, get matched with scholarships and jobs, and apply with confidence.', color: 'bg-emerald-700' },
               ].map((item, i) => (
                 <div key={item.step} className="relative bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
                   <div className="text-7xl font-black text-gray-50 leading-none mb-4 select-none">{item.step}</div>

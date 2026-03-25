@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { CalendarDays, Clock, Users, Video, Plus } from 'lucide-react';
 import { mockSessions } from '@/lib/api/mockData';
+import type { Session } from '@/lib/types/api';
 
-const pastSessions = [
-  { id: 'ses_p1', title: 'English Speaking Practice', startTime: '2026-03-10T14:00:00Z', endTime: '2026-03-10T15:00:00Z', studentIds: ['usr_123'], status: 'COMPLETED' },
-  { id: 'ses_p2', title: 'CV Writing Workshop', startTime: '2026-03-05T10:00:00Z', endTime: '2026-03-05T11:30:00Z', studentIds: ['usr_123', 'usr_124', 'usr_125'], status: 'COMPLETED' },
+const pastSessions: Session[] = [
+  { id: 'ses_p1', title: 'English Speaking Practice', description: 'Focused speaking practice session.', startTime: '2026-03-10T14:00:00Z', endTime: '2026-03-10T15:00:00Z', mentorId: 'mnt_001', studentIds: ['usr_123'], status: 'COMPLETED' },
+  { id: 'ses_p2', title: 'CV Writing Workshop', description: 'Group session on CV and cover letter writing.', startTime: '2026-03-05T10:00:00Z', endTime: '2026-03-05T11:30:00Z', mentorId: 'mnt_001', studentIds: ['usr_123', 'usr_124', 'usr_125'], status: 'COMPLETED' },
 ];
 
 const tabs = ['Upcoming', 'Past'];
