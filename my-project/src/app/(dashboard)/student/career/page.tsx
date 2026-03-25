@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Briefcase, GraduationCap, Globe, MapPin, Calendar,
-  CheckCircle, FileText, ArrowRight, Search, Filter,
+  CheckCircle, FileText, ArrowRight, Search, Filter, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { mockOpportunities } from '@/lib/api/mockData';
+import { logAction } from '@/lib/utils/auditLogger';
 import type { OpportunityType } from '@/lib/types/api';
+import type { Opportunity } from '@/lib/types/api';
 
 const typeConfig: Record<OpportunityType, { label: string; bg: string; text: string; icon: typeof Briefcase }> = {
   SCHOLARSHIP: { label: 'Scholarship', bg: 'bg-emerald-100', text: 'text-emerald-700', icon: GraduationCap },
@@ -29,8 +32,23 @@ const applications = [
 ];
 
 export default function CareerPage() {
-  const [filter, setFilter] = useState<'ALL' | OpportunityType>('ALL');
-  const [search, setSearch] = useState('');
+  const [filter, setFilter]       = useState<'ALL' | OpportunityType>('ALL');
+  const [search, setSearch]         = useState('');
+  const [applying, setApplying]     = useState<Opportunity | null>(null);
+  const [appNote, setAppNote]       = useState('');
+  const [submitted, setSubmitted]   = useState<string[]>([]);
+  const [appSuccess, setAppSuccess] = useState(false);
+
+  const handleApply = (opp: Opportunity) => { setApplying(opp); setAppNote(''); };
+
+  const submitApplication = () => {
+    if (!applying) return;
+    setSubmitted((p) => [...p, applying.id]);
+    logAction('usr_123', 'STUDENT', 'APPLICATION_SUBMITTED', `Applied to ${applying.title}`);
+    setApplying(null);
+    setAppSuccess(true);
+    setTimeout(() => setAppSuccess(false), 3000);
+  };
 
   const filtered = mockOpportunities.filter((o) => {
     const matchType = filter === 'ALL' || o.type === filter;
@@ -44,7 +62,47 @@ export default function CareerPage() {
   return (
     <div className="space-y-6 max-w-6xl">
 
+      {/* Apply modal */}
+      {applying && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-bold text-gray-900">{applying.title}</h2>
+                <p className="text-sm text-gray-500">{applying.organization}</p>
+              </div>
+              <button onClick={() => setApplying(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1">Why are you applying? (optional)</label>
+              <textarea rows={4} value={appNote} onChange={(e) => setAppNote(e.target.value)}
+                placeholder="Briefly explain why you are a good fit for this opportunity..."
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 resize-none" />
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setApplying(null)}
+                className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                Cancel
+              </button>
+              <button onClick={submitApplication}
+                className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors">
+                Submit Application
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
+      <div className="flex items-center justify-between">
+        {appSuccess && (
+          <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl">
+            <CheckCircle className="w-4 h-4" /> Application submitted successfully!
+          </div>
+        )}
+      </div>
       <div>
         <h1 className="text-2xl font-extrabold text-gray-900">Career Hub</h1>
         <p className="text-gray-500 text-sm mt-1">Build your CV, track applications, and discover opportunities matched to your skills.</p>
@@ -129,9 +187,15 @@ export default function CareerPage() {
                         ))}
                       </div>
 
-                      <Button variant="primary" size="sm">
-                        Apply Now <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
-                      </Button>
+                      {submitted.includes(opp.id) ? (
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl">
+                          <CheckCircle className="w-3.5 h-3.5" /> Applied
+                        </span>
+                      ) : (
+                        <Button variant="primary" size="sm" onClick={() => handleApply(opp)}>
+                          Apply Now <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -175,9 +239,11 @@ export default function CareerPage() {
               ))}
             </div>
 
-            <Button variant="primary" size="sm" className="w-full">
-              Continue Building CV
-            </Button>
+            <Link href="/student/career/cv-builder">
+              <Button variant="primary" size="sm" className="w-full">
+                Continue Building CV
+              </Button>
+            </Link>
           </div>
 
           {/* Application tracker */}

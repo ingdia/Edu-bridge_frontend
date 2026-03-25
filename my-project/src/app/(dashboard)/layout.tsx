@@ -101,8 +101,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const firstName   = displayUser.fullName.split(' ')[0];
   const roleLabel   = displayUser.gradeLevel;
 
-  const notifications = isAdmin ? adminNotifications : isMentor ? mentorNotifications : studentNotifications;
-  const unreadCount   = notifications.filter((n) => !n.read).length;
+  const [notifications, setNotifications] = useState(
+    isAdmin ? adminNotifications : isMentor ? mentorNotifications : studentNotifications
+  );
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
 
   return (
     <div className="min-h-screen flex bg-white">
@@ -243,7 +247,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     })}
                   </div>
                   <div className="px-4 py-2.5 border-t border-gray-100 text-center">
-                    <button className="text-xs text-emerald-700 font-semibold hover:text-emerald-800 transition-colors">
+                    <button className="text-xs text-emerald-700 font-semibold hover:text-emerald-800 transition-colors" onClick={markAllRead}>
                       Mark all as read
                     </button>
                   </div>
