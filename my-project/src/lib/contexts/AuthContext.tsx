@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import type { User, UserRole } from '@/lib/types/user';
 import { mockUser } from '@/lib/api/mockData';
 
-// Mock credentials — replace with real API calls later
 const MOCK_ACCOUNTS: Record<string, { password: string; user: User }> = {
   'student@edubridge.rw': {
     password: 'student123',
@@ -13,11 +12,11 @@ const MOCK_ACCOUNTS: Record<string, { password: string; user: User }> = {
   },
   'mentor@edubridge.rw': {
     password: 'mentor123',
-    user: { ...mockUser, id: 'mnt_001', email: 'mentor@edubridge.rw', fullName: 'David Mugisha', role: 'MENTOR' },
+    user: { ...mockUser, id: 'mnt_001', email: 'mentor@edubridge.rw', fullName: 'Dr. Alice Ingabire', role: 'MENTOR', gradeLevel: 'Mentor' },
   },
   'admin@edubridge.rw': {
     password: 'admin123',
-    user: { ...mockUser, id: 'adm_001', email: 'admin@edubridge.rw', fullName: 'Admin User', role: 'ADMIN' },
+    user: { ...mockUser, id: 'adm_001', email: 'admin@edubridge.rw', fullName: 'Diane Ingabire', role: 'ADMIN', gradeLevel: 'Administrator' },
   },
 };
 
@@ -44,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!account || account.password !== password) {
       return { error: 'Invalid email or password.' };
     }
-    // Set cookie so middleware lets the request through
     document.cookie = 'accessToken=mock-token; path=/; max-age=86400';
     setUser(account.user);
     router.push(ROLE_REDIRECT[account.user.role]);
