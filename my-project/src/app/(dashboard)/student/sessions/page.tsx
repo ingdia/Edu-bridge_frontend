@@ -1,29 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CalendarDays, Clock, Video, Plus, CheckCircle, X } from 'lucide-react';
-import { mockSessions } from '@/lib/api/mockData';
-import { logAction } from '@/lib/utils/auditLogger';
+import { fetchStudentSessions, type StudentSession } from '@/lib/api/student';
+import toast from 'react-hot-toast';
 
-const pastSessions = [
-  { id: 'ses_p1', title: 'English Speaking Practice', startTime: '2026-03-10T14:00:00Z', endTime: '2026-03-10T15:00:00Z', mentorId: 'mnt_001', studentIds: ['usr_123'], status: 'COMPLETED' as const },
-  { id: 'ses_p2', title: 'CV Writing Workshop',       startTime: '2026-03-05T10:00:00Z', endTime: '2026-03-05T11:30:00Z', mentorId: 'mnt_001', studentIds: ['usr_123'], status: 'COMPLETED' as const },
-];
+const statusConfig: Record<string, string> = {
+  SCHEDULED:  'bg-emerald-100 text-emerald-700',
+  COMPLETED:  'bg-gray-100 text-gray-600',
+  CANCELLED:  'bg-red-100 text-red-600',
+  RESCHEDULED:'bg-amber-100 text-amber-700',
+};
 
 const tabs = ['Upcoming', 'Past'];
 
 export default function StudentSessionsPage() {
-  const [activeTab, setActiveTab]   = useState('Upcoming');
-  const [showRequest, setShowRequest] = useState(false);
-  const [topic, setTopic]           = useState('');
+  const [sessions, setSessions]         = useState<StudentSession[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [activeTab, setActiveTab]       = useState('Upcoming');
+  const [showRequest, setShowRequest]   = useState(false);
+  const [topic, setTopic]               = useState('');
   const [preferredDate, setPreferredDate] = useState('');
-  const [submitted, setSubmitted]   = useState(false);
+  const [submitted, setSubmitted]       = useState(false);
 
-  const sessions = activeTab === 'Upcoming' ? mockSessions : pastSessions;
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchStudentSessions();
+      setSessions(data);
+    } catch {
+      toast.error('Failed to load sessions');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const now = new Date();
+  const upcoming = sessions.filter((s) => s.status === 'SCHEDULED' && new Date(s.scheduledFor) >= now);
+  const past     = sessions.filter((s) => s.status !== 'SCHEDULED' || new Date(s.scheduledFor) < now);
+  const displayed = activeTab === 'Upcoming' ? upcoming : past;
 
   const handleRequest = (e: React.FormEvent) => {
     e.preventDefault();
-    logAction('usr_123', 'STUDENT', 'SESSION_REQUESTED', `Requested session on topic: ${topic}`);
+    // Session requests go through the mentor — just show confirmation
     setSubmitted(true);
     setShowRequest(false);
     setTopic('');
@@ -38,10 +59,8 @@ export default function StudentSessionsPage() {
           <h1 className="text-xl font-bold text-gray-900">My Sessions</h1>
           <p className="text-sm text-gray-500 mt-0.5">View your mentorship sessions and request new ones.</p>
         </div>
-        <button
-          onClick={() => setShowRequest(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-xl hover:bg-emerald-800 transition-colors"
-        >
+        <button onClick={() => setShowRequest(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-xl hover:bg-emerald-800 transition-colors">
           <Plus className="w-4 h-4" /> Request Session
         </button>
       </div>
@@ -97,48 +116,61 @@ export default function StudentSessionsPage() {
               activeTab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}>
             {t}
+            {t === 'Upcoming' && upcoming.length > 0 && (
+              <span className="ml-1.5 text-xs bg-emerald-100 text-emerald-700 font-semibold px-1.5 py-0.5 rounded-full">
+                {upcoming.length}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Sessions list */}
       <div className="space-y-3">
-        {sessions.length === 0 && (
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+          ))
+        ) : displayed.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 py-16 text-center">
             <CalendarDays className="w-10 h-10 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-400 text-sm">No {activeTab.toLowerCase()} sessions.</p>
           </div>
+        ) : (
+          displayed.map((s) => (
+            <div key={s.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                <CalendarDays className="w-5 h-5 text-emerald-700" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-gray-900">{s.title ?? 'Mentorship Session'}</h3>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${statusConfig[s.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                    {s.status}
+                  </span>
+                </div>
+                {s.notes && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{s.notes}</p>}
+                <div className="flex flex-wrap gap-3 mt-2">
+                  <span className="flex items-center gap-1 text-xs text-gray-500">
+                    <Clock className="w-3.5 h-3.5" />
+                    {new Date(s.scheduledFor).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} ·{' '}
+                    {new Date(s.scheduledFor).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    {s.duration && ` · ${s.duration} min`}
+                  </span>
+                  {s.meetingLink && s.status === 'SCHEDULED' && (
+                    <a href={s.meetingLink} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-emerald-700 font-medium hover:underline">
+                      <Video className="w-3.5 h-3.5" /> Join Meeting
+                    </a>
+                  )}
+                  {s.mentor?.user?.email && (
+                    <span className="text-xs text-gray-400">Mentor: {s.mentor.user.email}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
         )}
-        {sessions.map((s) => (
-          <div key={s.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4">
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-              <CalendarDays className="w-5 h-5 text-emerald-700" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="text-sm font-semibold text-gray-900">{s.title}</h3>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
-                  s.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-emerald-100 text-emerald-700'
-                }`}>
-                  {s.status}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-3 mt-2">
-                <span className="flex items-center gap-1 text-xs text-gray-500">
-                  <Clock className="w-3.5 h-3.5" />
-                  {new Date(s.startTime).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} ·{' '}
-                  {new Date(s.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                {'meetingLink' in s && s.meetingLink && s.status !== 'COMPLETED' && (
-                  <a href={s.meetingLink} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-emerald-700 font-medium hover:underline">
-                    <Video className="w-3.5 h-3.5" /> Join Meeting
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
