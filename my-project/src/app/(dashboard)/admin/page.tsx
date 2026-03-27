@@ -1,13 +1,15 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Users, BookOpen, TrendingUp, Briefcase, Activity,
   ChevronRight, UserPlus, CalendarDays, FileText, Star,
 } from 'lucide-react';
 import {
-  mockAdminStats, mockAdminActivity, mockMentorStats,
-} from '@/lib/api/mockData';
+  fetchAdminOverview, fetchTopPerformers, fetchSystemActivity,
+  type AdminOverview, type TopPerformer, type ActivityItem,
+} from '@/lib/api/admin';
 
 const roleColors: Record<string, string> = {
   STUDENT: 'bg-emerald-100 text-emerald-700',
@@ -24,16 +26,44 @@ function timeAgo(iso: string) {
 }
 
 export default function AdminOverview() {
-  const stats = [
-    { label: 'Total Students',   value: mockAdminStats.totalStudents,               icon: Users,       color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
-    { label: 'Active Mentors',   value: mockAdminStats.totalMentors,                 icon: UserPlus,    color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/users' },
-    { label: 'Active Modules',   value: mockAdminStats.activeModules,                icon: BookOpen,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/modules' },
-    { label: 'Completion Rate',  value: `${mockAdminStats.platformCompletionRate}%`, icon: TrendingUp,  color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/analytics' },
-    { label: 'New Users (Week)', value: mockAdminStats.newUsersThisWeek,             icon: Activity,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
-    { label: 'Sessions (Week)',  value: mockAdminStats.sessionsThisWeek,             icon: CalendarDays,color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/analytics' },
-    { label: 'Pending Reports',  value: mockAdminStats.pendingReports,               icon: FileText,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/analytics' },
-    { label: 'Opportunities',    value: mockAdminStats.activeOpportunities,          icon: Briefcase,   color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/opportunities' },
-  ];
+  const [overview, setOverview]       = useState<AdminOverview | null>(null);
+  const [performers, setPerformers]   = useState<TopPerformer[]>([]);
+  const [activity, setActivity]       = useState<ActivityItem[]>([]);
+  const [loading, setLoading]         = useState(true);
+
+  useEffect(() => {
+    Promise.all([fetchAdminOverview(), fetchTopPerformers(5), fetchSystemActivity()])
+      .then(([ov, perf, act]) => {
+        setOverview(ov);
+        setPerformers(perf);
+        setActivity(act.recentLogins);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const stats = overview ? [
+    { label: 'Total Students',    value: overview.totalStudents,     icon: Users,       color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
+    { label: 'Active Mentors',    value: overview.totalMentors,      icon: UserPlus,    color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/users' },
+    { label: 'Active Modules',    value: overview.totalModules,      icon: BookOpen,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/modules' },
+    { label: 'Total Sessions',    value: overview.totalSessions,     icon: CalendarDays,color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/analytics' },
+    { label: 'Active Students',   value: overview.activeStudents,    icon: Activity,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/users' },
+    { label: 'Completed Sessions',value: overview.completedSessions, icon: TrendingUp,  color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/analytics' },
+    { label: 'Pending Reviews',   value: overview.pendingSubmissions,icon: FileText,    color: 'text-emerald-700', bg: 'bg-emerald-50', href: '/admin/analytics' },
+    { label: 'Opportunities',     value: '—',                        icon: Briefcase,   color: 'text-amber-600',   bg: 'bg-amber-50',   href: '/admin/opportunities' },
+  ] : [];
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-7 w-48 bg-gray-100 rounded-lg animate-pulse" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 h-20 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -67,23 +97,27 @@ export default function AdminOverview() {
               View all <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="space-y-3">
-            {mockMentorStats.topPerformers.map((s, i) => (
-              <div key={s.studentId} className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
-                  {i + 1}
+          {performers.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-6">No student data yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {performers.map((s, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{s.fullName}</p>
+                    <p className="text-xs text-gray-500">{s.completedModules} modules completed</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span className="text-sm font-semibold text-gray-900">{Math.round(s.averageScore ?? 0)}%</span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{s.fullName}</p>
-                  <p className="text-xs text-gray-500">{s.completedModules} modules completed</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span className="text-sm font-semibold text-gray-900">{s.averageScore}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -110,22 +144,26 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Logins */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <h2 className="text-sm font-semibold text-gray-900 mb-4">Recent Platform Activity</h2>
-        <div className="space-y-3">
-          {mockAdminActivity.map((a) => (
-            <div key={a.id} className="flex items-center gap-3">
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${roleColors[a.role]}`}>
-                {a.role}
-              </span>
-              <p className="text-sm text-gray-700 flex-1 truncate">
-                <span className="font-medium">{a.user}</span> — {a.action}
-              </p>
-              <span className="text-xs text-gray-400 shrink-0">{timeAgo(a.timestamp)}</span>
-            </div>
-          ))}
-        </div>
+        {activity.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-6">No recent activity.</p>
+        ) : (
+          <div className="space-y-3">
+            {activity.map((a, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${roleColors[a.role] ?? 'bg-gray-100 text-gray-600'}`}>
+                  {a.role}
+                </span>
+                <p className="text-sm text-gray-700 flex-1 truncate">
+                  <span className="font-medium">{a.email}</span> — logged in
+                </p>
+                <span className="text-xs text-gray-400 shrink-0">{timeAgo(a.lastLogin)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosE
 import { mockApi } from './mockClient';
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // Real API client setup
 const realApiClient = axios.create({
@@ -22,11 +22,10 @@ if (!USE_MOCK) {
     return config;
   });
   
-  // Add response interceptor for token refresh (real API only)
   realApiClient.interceptors.response.use(
     (res: AxiosResponse) => res,
     async (error: AxiosError) => {
-      // ... token refresh logic here
+      // ... token refresh logic here (Step 3)
       return Promise.reject(error);
     }
   );

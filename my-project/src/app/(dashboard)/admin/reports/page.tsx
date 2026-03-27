@@ -1,43 +1,112 @@
 'use client';
 
-import { useState } from 'react';
-import { Upload, PenLine, CheckCircle, FileText, Trash2, Plus } from 'lucide-react';
-import { mockAllUsers } from '@/lib/api/mockData';
+import { useEffect, useState, useCallback } from 'react';
+import { Upload, PenLine, FileText, Trash2, Plus } from 'lucide-react';
+import {
+  fetchAllReports, submitManualReport, deleteReport as apiDeleteReport,
+  fetchAdminUsers, type AcademicReport, type AdminUser,
+} from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
-import { logAction } from '@/lib/utils/auditLogger';
 import toast from 'react-hot-toast';
 
 type EntryMode = 'manual' | 'upload';
 
 const subjects = ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'ICT'];
 
-const mockReports = [
-  { id: 'rep_001', student: 'Jean Pierre Niyonzima', term: 'Term 1 2026', enteredBy: 'Diane Ingabire', method: 'Manual', date: '2026-02-10', grades: { English: 78, Mathematics: 82, ICT: 90 } },
-  { id: 'rep_002', student: 'Marie Uwimana',         term: 'Term 1 2026', enteredBy: 'Diane Ingabire', method: 'Upload', date: '2026-02-11', grades: { English: 85, Mathematics: 79, ICT: 88 } },
-  { id: 'rep_003', student: 'Emmanuel Habimana',     term: 'Term 1 2026', enteredBy: 'Diane Ingabire', method: 'Manual', date: '2026-02-12', grades: { English: 62, Mathematics: 70, ICT: 75 } },
-];
+const TERMS = ['Term 1 2026', 'Term 2 2026', 'Term 3 2026', 'Term 1 2025', 'Term 2 2025'];
 
-const students = mockAllUsers.filter((u) => u.role === 'STUDENT');
+function termToYearParts(term: string): { term: string; year: number } {
+  const parts = term.split(' ');
+  return { term: parts.slice(0, 2).join(' '), year: parseInt(parts[2]) || new Date().getFullYear() };
+}
+
+function calcAvg(subjects: Record<string, any> | null): number | null {
+  if (!subjects) return null;
+  const vals = Object.values(subjects).map(Number).filter((v) => !isNaN(v));
+  if (vals.length === 0) return null;
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+}
 
 export default function AdminReportsPage() {
-  const [mode, setMode]               = useState<EntryMode>('manual');
+  const [reports, setReports]     = useState<AcademicReport[]>([]);
+  const [students, setStudents]   = useState<AdminUser[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(false);
+  const [mode, setMode]           = useState<EntryMode>('manual');
   const [selectedStudent, setSelectedStudent] = useState('');
-  const [term, setTerm]               = useState('Term 1 2026');
-  const [grades, setGrades]           = useState<Record<string, string>>({});
-  const [uploadFile, setUploadFile]   = useState<File | null>(null);
-  const [dragOver, setDragOver]       = useState(false);
+  const [term, setTerm]           = useState('Term 1 2026');
+  const [grades, setGrades]       = useState<Record<string, string>>({});
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [dragOver, setDragOver]   = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [reps, users] = await Promise.all([fetchAllReports(), fetchAdminUsers('STUDENT')]);
+      setReports(reps);
+      setStudents(users);
+    } catch {
+      toast.error('Failed to load reports');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const handleGrade = (subject: string, value: string) => {
     setGrades((prev) => ({ ...prev, [subject]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    logAction('adm_001', 'ADMIN', mode === 'upload' ? 'REPORT_UPLOADED' : 'REPORT_MANUAL_ENTRY', `Report saved for student: ${selectedStudent}, term: ${term}`);
-    toast.success('Report saved successfully');
-    setGrades({});
-    setSelectedStudent('');
-    setUploadFile(null);
+    if (!selectedStudent) { toast.error('Select a student'); return; }
+
+    if (mode === 'upload') {
+      toast('File upload requires Cloudinary setup — use manual entry for now.', { icon: 'ℹ️' });
+      return;
+    }
+
+    const filledGrades: Record<string, number> = {};
+    subjects.forEach((s) => { if (grades[s]) filledGrades[s] = Number(grades[s]); });
+
+    if (Object.keys(filledGrades).length === 0) {
+      toast.error('Enter at least one subject grade');
+      return;
+    }
+
+    const avg = Math.round(Object.values(filledGrades).reduce((a, b) => a + b, 0) / Object.values(filledGrades).length);
+    const { term: termStr, year } = termToYearParts(term);
+
+    setSaving(true);
+    try {
+      const created = await submitManualReport({
+        studentId: selectedStudent,
+        term: termStr,
+        year,
+        subjects: filledGrades,
+        overallGrade: `${avg}%`,
+      });
+      setReports((prev) => [created, ...prev]);
+      toast.success('Report saved successfully');
+      setGrades({});
+      setSelectedStudent('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save report');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this report?')) return;
+    try {
+      await apiDeleteReport(id);
+      setReports((prev) => prev.filter((r) => r.id !== id));
+      toast.success('Report deleted');
+    } catch {
+      toast.error('Failed to delete report');
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -49,12 +118,9 @@ export default function AdminReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Academic Reports</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Enter student grades manually or upload scanned report cards.</p>
-        </div>
-
+      <div>
+        <h1 className="text-xl font-bold text-gray-900">Academic Reports</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Enter student grades manually or upload scanned report cards.</p>
       </div>
 
       <div className="grid lg:grid-cols-5 gap-6">
@@ -92,7 +158,7 @@ export default function AdminReportsPage() {
               >
                 <option value="">Select a student…</option>
                 {students.map((s) => (
-                  <option key={s.id} value={s.id}>{s.fullName}</option>
+                  <option key={s.id} value={s.id}>{s.fullName || s.email}</option>
                 ))}
               </select>
             </div>
@@ -105,13 +171,11 @@ export default function AdminReportsPage() {
                 onChange={(e) => setTerm(e.target.value)}
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 bg-white"
               >
-                {['Term 1 2026', 'Term 2 2026', 'Term 3 2026', 'Term 1 2025', 'Term 2 2025'].map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
+                {TERMS.map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
 
-            {/* FR5.2 — Manual grade entry */}
+            {/* Manual grade entry */}
             {mode === 'manual' && (
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-2">Subject Grades (out of 100)</label>
@@ -134,7 +198,7 @@ export default function AdminReportsPage() {
               </div>
             )}
 
-            {/* FR5.1 — Upload scan */}
+            {/* Upload scan */}
             {mode === 'upload' && (
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-2">Upload Report Card (PDF, JPEG, PNG)</label>
@@ -159,11 +223,7 @@ export default function AdminReportsPage() {
                     <div className="flex items-center justify-center gap-2">
                       <FileText className="w-5 h-5 text-emerald-600" />
                       <span className="text-sm font-medium text-gray-900">{uploadFile.name}</span>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setUploadFile(null); }}
-                        className="text-gray-400 hover:text-red-500 transition-colors"
-                      >
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setUploadFile(null); }} className="text-gray-400 hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -180,18 +240,20 @@ export default function AdminReportsPage() {
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors"
+              disabled={saving}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60"
             >
-              <Plus className="w-4 h-4" /> Save Report
+              <Plus className="w-4 h-4" /> {saving ? 'Saving…' : 'Save Report'}
             </button>
           </form>
         </div>
 
-        {/* Existing reports table */}
+        {/* Reports table */}
         <div className="lg:col-span-3">
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900">Submitted Reports</h2>
+              <span className="text-xs text-gray-400">{reports.length} total</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -199,41 +261,45 @@ export default function AdminReportsPage() {
                   <tr className="bg-gray-50 border-b border-gray-100">
                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Term</th>
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Method</th>
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Year</th>
                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Avg</th>
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Date</th>
+                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Grade</th>
+                    <th className="px-5 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {mockReports.map((r) => {
-                    const vals = Object.values(r.grades);
-                    const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-                    return (
-                      <tr key={r.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-3.5 font-medium text-gray-900">{r.student}</td>
-                        <td className="px-5 py-3.5 text-gray-500">{r.term}</td>
-                        <td className="px-5 py-3.5">
-                          <span className={cn(
-                            'text-xs font-semibold px-2 py-0.5 rounded-full',
-                            r.method === 'Manual' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
-                          )}>
-                            {r.method}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <span className={cn(
-                            'text-sm font-bold',
-                            avg >= 80 ? 'text-emerald-700' : avg >= 60 ? 'text-amber-600' : 'text-gray-500'
-                          )}>
-                            {avg}%
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-xs text-gray-400">
-                          {new Date(r.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {loading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>
+                    ))
+                  ) : reports.length === 0 ? (
+                    <tr><td colSpan={6} className="text-center py-10 text-sm text-gray-400">No reports yet.</td></tr>
+                  ) : (
+                    reports.map((r) => {
+                      const avg = calcAvg(r.subjects);
+                      return (
+                        <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-5 py-3.5 font-medium text-gray-900">{r.student?.fullName ?? '—'}</td>
+                          <td className="px-5 py-3.5 text-gray-500">{r.term}</td>
+                          <td className="px-5 py-3.5 text-gray-500">{r.year}</td>
+                          <td className="px-5 py-3.5">
+                            {avg !== null ? (
+                              <span className={cn('text-sm font-bold',
+                                avg >= 80 ? 'text-emerald-700' : avg >= 60 ? 'text-amber-600' : 'text-gray-500')}>
+                                {avg}%
+                              </span>
+                            ) : <span className="text-gray-400">—</span>}
+                          </td>
+                          <td className="px-5 py-3.5 text-gray-500">{r.overallGrade ?? '—'}</td>
+                          <td className="px-5 py-3.5">
+                            <button onClick={() => handleDelete(r.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>

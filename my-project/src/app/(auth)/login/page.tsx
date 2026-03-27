@@ -15,7 +15,7 @@ const highlights = [
 const demoAccounts = [
   { role: 'Student', email: 'student@edubridge.rw', password: 'student123' },
   { role: 'Mentor',  email: 'mentor@edubridge.rw',  password: 'mentor123' },
-  { role: 'Admin',   email: 'admin@edubridge.rw',   password: 'admin123' },
+  { role: 'Admin',   email: 'admin@edubridge.rw',   password: 'Admin@2025!' },
 ];
 
 export default function LoginPage() {

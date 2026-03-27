@@ -59,13 +59,13 @@ function clearTokens() {
 }
 
 function mapUser(raw: any): User {
-  const profile = raw.studentProfile || raw.mentorProfile || {};
+  const profile = raw.studentProfile || raw.mentorProfile || raw.adminProfile || {};
   return {
     id: raw.id,
     email: raw.email,
-    fullName: profile.fullName || raw.email.split('@')[0],
+    fullName: profile.fullName || raw.fullName || raw.email.split('@')[0],
     role: raw.role as UserRole,
-    profilePhoto: profile.profilePhoto || null,
+    profilePhoto: profile.profilePhotoUrl || profile.profilePhoto || null,
     school: profile.schoolName || 'GS Ruyenzi',
     gradeLevel: profile.gradeLevel || '',
   };
@@ -106,15 +106,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (data: RegisterData): Promise<{ error?: string }> => {
     try {
-      const res = await apiFetch('/api/auth/register', {
+      await apiFetch('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      const { user: rawUser, accessToken, refreshToken } = res.data;
-      saveTokens(accessToken, refreshToken);
-      const mappedUser = mapUser(rawUser);
-      setUser(mappedUser);
-      router.push(ROLE_REDIRECT[mappedUser.role]);
+      // Don't save tokens — user must verify email first
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       return {};
     } catch (err: any) {
       return { error: err.message || 'Registration failed. Please try again.' };

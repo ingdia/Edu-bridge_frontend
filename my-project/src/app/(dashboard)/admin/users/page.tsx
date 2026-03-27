@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, UserPlus, Users, GraduationCap, Shield, X, CheckCircle } from 'lucide-react';
-import { mockAllUsers } from '@/lib/api/mockData';
+import { useEffect, useState, useCallback } from 'react';
+import { Search, UserPlus, Users, GraduationCap, Shield, X } from 'lucide-react';
+import { fetchAdminUsers, toggleUserStatus, type AdminUser } from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
@@ -14,53 +14,72 @@ const roleConfig = {
   ADMIN:   { label: 'Admin',   className: 'bg-gray-100 text-gray-700',       icon: Shield },
 };
 
-const statusConfig = {
-  ACTIVE:   'bg-emerald-100 text-emerald-700',
-  INACTIVE: 'bg-gray-100 text-gray-500',
-};
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+function getDisplayName(u: AdminUser) {
+  return u.fullName || u.email.split('@')[0];
+}
+
+function getInitials(u: AdminUser) {
+  const name = getDisplayName(u);
+  return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+}
+
 export default function AdminUsersPage() {
+  const [users, setUsers]           = useState<AdminUser[]>([]);
+  const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState('');
-  const [roleFilter, setRoleFilter]  = useState<RoleFilter>('ALL');
-  const [showAdd, setShowAdd]        = useState(false);
-  const [editUser, setEditUser]      = useState<typeof mockAllUsers[0] | null>(null);
-  const [newUser, setNewUser]        = useState({ fullName: '', email: '', role: 'STUDENT' as const, school: 'GS Ruyenzi', gradeLevel: 'Senior 4' });
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
+  const [toggling, setToggling]     = useState<string | null>(null);
+  const [showAdd, setShowAdd]       = useState(false);
 
-  const handleAddUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success(`User ${newUser.fullName} added successfully`);
-    setShowAdd(false);
-    setNewUser({ fullName: '', email: '', role: 'STUDENT', school: 'GS Ruyenzi', gradeLevel: 'Senior 4' });
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchAdminUsers();
+      setUsers(data);
+    } catch {
+      toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleToggle = async (userId: string, currentlyActive: boolean) => {
+    setToggling(userId);
+    try {
+      const updated = await toggleUserStatus(userId);
+      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, isActive: updated.isActive } : u));
+      toast.success(updated.isActive ? 'User activated' : 'User deactivated');
+    } catch {
+      toast.error('Failed to update user status');
+    } finally {
+      setToggling(null);
+    }
   };
 
-  const handleEditUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success('User updated successfully');
-    setEditUser(null);
-  };
-
-  const filtered = mockAllUsers.filter((u) => {
+  const filtered = users.filter((u) => {
     const matchRole   = roleFilter === 'ALL' || u.role === roleFilter;
-    const matchSearch = u.fullName.toLowerCase().includes(search.toLowerCase()) ||
-                        u.email.toLowerCase().includes(search.toLowerCase());
+    const name        = getDisplayName(u).toLowerCase();
+    const matchSearch = name.includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
     return matchRole && matchSearch;
   });
 
   const counts = {
-    ALL:     mockAllUsers.length,
-    STUDENT: mockAllUsers.filter((u) => u.role === 'STUDENT').length,
-    MENTOR:  mockAllUsers.filter((u) => u.role === 'MENTOR').length,
-    ADMIN:   mockAllUsers.filter((u) => u.role === 'ADMIN').length,
+    ALL:     users.length,
+    STUDENT: users.filter((u) => u.role === 'STUDENT').length,
+    MENTOR:  users.filter((u) => u.role === 'MENTOR').length,
+    ADMIN:   users.filter((u) => u.role === 'ADMIN').length,
   };
 
   return (
     <div className="space-y-6">
 
-      {/* Add User Modal */}
+      {/* Add User Modal — placeholder, registration is done via /register */}
       {showAdd && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
@@ -68,56 +87,16 @@ export default function AdminUsersPage() {
               <h2 className="font-bold text-gray-900">Add New User</h2>
               <button onClick={() => setShowAdd(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
             </div>
-            <form onSubmit={handleAddUser} className="space-y-3">
-              {([['Full Name','fullName','text'],['Email','email','email'],['School','school','text'],['Grade Level','gradeLevel','text']] as [string,keyof typeof newUser,string][]).map(([label,key,type]) => (
-                <div key={key}>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
-                  <input type={type} required value={newUser[key]} onChange={(e) => setNewUser((p) => ({ ...p, [key]: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
-                </div>
-              ))}
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Role</label>
-                <select value={newUser.role} onChange={(e) => setNewUser((p) => ({ ...p, role: e.target.value as typeof newUser.role }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 bg-white">
-                  <option value="STUDENT">Student</option>
-                  <option value="MENTOR">Mentor</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors">Add User</button>
-              </div>
-            </form>
+            <p className="text-sm text-gray-500">
+              New users register via the <span className="font-semibold text-emerald-700">/register</span> page. Share the link with the user and they will appear here after email verification.
+            </p>
+            <button onClick={() => setShowAdd(false)} className="w-full py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors">
+              Got it
+            </button>
           </div>
         </div>
       )}
 
-      {/* Edit User Modal */}
-      {editUser && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900">Edit User</h2>
-              <button onClick={() => setEditUser(null)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-4 h-4" /></button>
-            </div>
-            <form onSubmit={handleEditUser} className="space-y-3">
-              {([['Full Name','fullName'],['Email','email'],['School','school']] as [string, keyof typeof editUser][]).map(([label,key]) => (
-                <div key={key}>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
-                  <input type="text" value={String(editUser[key])} onChange={(e) => setEditUser((p) => p ? { ...p, [key]: e.target.value } : p)}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400" />
-                </div>
-              ))}
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setEditUser(null)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors">Save Changes</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">User Management</h1>
@@ -176,23 +155,29 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={7} className="px-5 py-3.5">
+                      <div className="h-5 bg-gray-100 rounded animate-pulse" />
+                    </td>
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-10 text-sm text-gray-400">No users found.</td>
                 </tr>
               ) : (
                 filtered.map((u) => {
-                  const role   = roleConfig[u.role];
-                  const status = statusConfig[u.status as keyof typeof statusConfig];
-                  const initials = u.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2);
+                  const role = roleConfig[u.role];
                   return (
                     <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700 shrink-0">
-                            {initials}
+                            {getInitials(u)}
                           </div>
-                          <span className="font-medium text-gray-900">{u.fullName}</span>
+                          <span className="font-medium text-gray-900">{getDisplayName(u)}</span>
                         </div>
                       </td>
                       <td className="px-5 py-3.5 text-gray-500">{u.email}</td>
@@ -201,18 +186,29 @@ export default function AdminUsersPage() {
                           {role.label}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-gray-500">{u.school}</td>
+                      <td className="px-5 py-3.5 text-gray-500">{u.schoolName || '—'}</td>
                       <td className="px-5 py-3.5">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status}`}>
-                          {u.status}
+                        <span className={cn(
+                          'text-xs font-semibold px-2 py-0.5 rounded-full',
+                          u.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
+                        )}>
+                          {u.isActive ? 'ACTIVE' : 'INACTIVE'}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-gray-400 text-xs">{formatDate(u.joinedAt)}</td>
+                      <td className="px-5 py-3.5 text-gray-400 text-xs">{formatDate(u.createdAt)}</td>
                       <td className="px-5 py-3.5">
                         <button
-                          onClick={() => setEditUser(u)}
-                          className="text-xs text-emerald-700 font-semibold hover:text-emerald-900 transition-colors">
-                          Edit
+                          onClick={() => handleToggle(u.id, u.isActive)}
+                          disabled={toggling === u.id}
+                          className={cn(
+                            'text-xs font-semibold transition-colors',
+                            u.isActive
+                              ? 'text-red-500 hover:text-red-700'
+                              : 'text-emerald-700 hover:text-emerald-900',
+                            toggling === u.id && 'opacity-50 cursor-not-allowed'
+                          )}
+                        >
+                          {toggling === u.id ? '…' : u.isActive ? 'Deactivate' : 'Activate'}
                         </button>
                       </td>
                     </tr>
@@ -223,7 +219,7 @@ export default function AdminUsersPage() {
           </table>
         </div>
         <div className="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
-          Showing {filtered.length} of {mockAllUsers.length} users
+          Showing {filtered.length} of {users.length} users
         </div>
       </div>
     </div>
