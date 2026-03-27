@@ -3,7 +3,7 @@ import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosE
 import { mockApi } from './mockClient';
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Real API client setup
 const realApiClient = axios.create({
