@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { GraduationCap, Eye, EyeOff, ArrowRight, CheckCircle, BookOpen, Laptop, Briefcase } from 'lucide-react';
+import { GraduationCap, Eye, EyeOff, ArrowRight, CheckCircle, BookOpen, Laptop, Briefcase, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useAuthContext } from '@/lib/contexts/AuthContext';
 
 const pillars = [
   { icon: BookOpen, label: 'English Learning' },
@@ -21,9 +22,12 @@ const schools = [
 ];
 
 export default function RegisterPage() {
+  const { register } = useAuthContext();
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<'student' | 'mentor'>('student');
+  const [role, setRole] = useState<'STUDENT' | 'MENTOR'>('STUDENT');
   const [step, setStep] = useState<1 | 2>(1);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -45,24 +49,34 @@ export default function RegisterPage() {
     return { label: 'Strong', color: 'bg-emerald-600', width: 'w-full' };
   })();
 
+  const handleSubmit = async () => {
+    setError('');
+    setLoading(true);
+    const result = await register({
+      email: form.email,
+      password: form.password,
+      role,
+      fullName: form.fullName || undefined,
+      gradeLevel: form.gradeLevel || undefined,
+    });
+    if (result.error) setError(result.error);
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex">
 
       {/* ── LEFT PANEL ── */}
       <div className="hidden lg:flex lg:w-[45%] bg-emerald-900 flex-col justify-between p-12 relative overflow-hidden">
 
-        {/* Background texture */}
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '24px 24px' }}
         />
-
-        {/* Decorative blobs */}
         <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-teal-700/50 blur-3xl" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-emerald-700/60 blur-3xl" />
         <div className="absolute top-1/3 left-0 w-48 h-48 rounded-full bg-amber-500/10 blur-2xl" />
 
-        {/* Logo */}
         <div className="relative z-10">
           <Link href="/" className="inline-flex items-center gap-2.5 group">
             <div className="w-10 h-10 bg-white/10 border border-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/20 transition-colors">
@@ -74,7 +88,6 @@ export default function RegisterPage() {
           </Link>
         </div>
 
-        {/* Main content */}
         <div className="relative z-10 space-y-8">
           <div>
             <div className="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
@@ -89,7 +102,6 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          {/* Pillars */}
           <div className="space-y-3">
             {pillars.map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-3 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
@@ -102,7 +114,6 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          {/* Image strip */}
           <div className="flex gap-2">
             {[
               'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=80&h=80&fit=crop&crop=face',
@@ -119,7 +130,6 @@ export default function RegisterPage() {
           <p className="text-emerald-400 text-xs -mt-4">Students already enrolled</p>
         </div>
 
-        {/* Footer note */}
         <div className="relative z-10">
           <p className="text-emerald-500 text-xs">
             © {new Date().getFullYear()} EDU-Bridge · Built for Rwanda&apos;s public day schools
@@ -130,7 +140,6 @@ export default function RegisterPage() {
       {/* ── RIGHT PANEL ── */}
       <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 bg-white overflow-y-auto">
 
-        {/* Mobile logo */}
         <div className="lg:hidden mb-8">
           <Link href="/" className="inline-flex items-center gap-2 group">
             <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center">
@@ -144,7 +153,6 @@ export default function RegisterPage() {
 
         <div className="w-full max-w-md mx-auto">
 
-          {/* Heading */}
           <div className="mb-6">
             <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Create your free account</h1>
             <p className="text-gray-500 text-sm">
@@ -159,7 +167,7 @@ export default function RegisterPage() {
           <div className="mb-6">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">I am joining as a</p>
             <div className="grid grid-cols-2 gap-2">
-              {(['student', 'mentor'] as const).map((r) => (
+              {(['STUDENT', 'MENTOR'] as const).map((r) => (
                 <button
                   key={r}
                   onClick={() => setRole(r)}
@@ -169,9 +177,9 @@ export default function RegisterPage() {
                       : 'border-gray-200 text-gray-500 hover:border-gray-300'
                   }`}
                 >
-                  <div className="font-bold capitalize">{r}</div>
+                  <div className="font-bold capitalize">{r.toLowerCase()}</div>
                   <div className="text-xs font-normal mt-0.5 opacity-70">
-                    {r === 'student' ? 'Learn & grow your skills' : 'Guide & support students'}
+                    {r === 'STUDENT' ? 'Learn & grow your skills' : 'Guide & support students'}
                   </div>
                 </button>
               ))}
@@ -194,6 +202,14 @@ export default function RegisterPage() {
               </div>
             ))}
           </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-4 flex items-center gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
 
           {/* Step 1 — Account details */}
           {step === 1 && (
@@ -264,7 +280,7 @@ export default function RegisterPage() {
           {/* Step 2 — Profile details */}
           {step === 2 && (
             <div className="space-y-4">
-              {role === 'student' && (
+              {role === 'STUDENT' && (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">School</label>
@@ -300,7 +316,7 @@ export default function RegisterPage() {
                 </>
               )}
 
-              {role === 'mentor' && (
+              {role === 'MENTOR' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Area of expertise</label>
                   <select
@@ -316,7 +332,6 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Terms */}
               <div className="flex items-start gap-2.5 pt-1">
                 <input
                   id="terms"
@@ -337,22 +352,26 @@ export default function RegisterPage() {
                 <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(1)}>
                   Back
                 </Button>
-                <Button variant="primary" size="lg" className="flex-1" disabled={!form.agreed}>
-                  Create Account
-                  <ArrowRight className="ml-2 w-4 h-4" />
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
+                  disabled={!form.agreed || loading}
+                  onClick={handleSubmit}
+                >
+                  {loading ? 'Creating...' : 'Create Account'}
+                  {!loading && <ArrowRight className="ml-2 w-4 h-4" />}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="text-xs text-gray-400 font-medium">or</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* Google SSO */}
           <button className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -363,7 +382,6 @@ export default function RegisterPage() {
             Continue with Google
           </button>
 
-          {/* Trust badges */}
           <div className="mt-8 flex flex-wrap gap-4 justify-center">
             {['Free forever', 'No credit card', 'School-safe'].map((item) => (
               <div key={item} className="flex items-center gap-1.5 text-xs text-gray-400">
