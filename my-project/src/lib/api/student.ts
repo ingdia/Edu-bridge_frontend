@@ -59,6 +59,7 @@ export interface ProgressSummary {
 
 export interface StudentSession {
   id: string;
+  title?: string | null;
   notes: string | null;
   scheduledFor: string;
   duration: number;
