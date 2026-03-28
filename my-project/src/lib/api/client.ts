@@ -25,7 +25,25 @@ if (!USE_MOCK) {
   realApiClient.interceptors.response.use(
     (res: AxiosResponse) => res,
     async (error: AxiosError) => {
-      // ... token refresh logic here (Step 3)
+      const originalRequest = error.config as any;
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const refreshToken = localStorage.getItem('refreshToken');
+          if (!refreshToken) throw new Error('No refresh token');
+          const res = await axios.post(`${BASE_URL}/api/auth/refresh-token`, { refreshToken });
+          const { accessToken } = res.data.data ?? res.data;
+          localStorage.setItem('accessToken', accessToken);
+          document.cookie = `accessToken=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}`;
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return realApiClient(originalRequest);
+        } catch {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          document.cookie = 'accessToken=; path=/; max-age=0';
+          window.location.href = '/login';
+        }
+      }
       return Promise.reject(error);
     }
   );
