@@ -24,14 +24,15 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 interface Submission {
   id: string;
-  status: 'PENDING' | 'EVALUATED' | 'GRADED';
+  status: 'pending' | 'evaluated';
   score: number | null;
-  maxScore: number;
   feedback: string | null;
   submittedAt: string;
-  textAnswer: string | null;
-  student: { fullName: string; gradeLevel: string };
-  exercise: { title: string; type: string; maxScore: number; module: { title: string } };
+  exerciseType: string;
+  submissionContent: any;
+  moduleId: string;
+  student: { fullName: string; gradeLevel?: string };
+  module: { id: string; title: string; type: string };
 }
 
 export default function MentorGrading() {
@@ -46,9 +47,10 @@ export default function MentorGrading() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await apiFetch<{ success: boolean; data: Submission[] }>('/api/exercises/mentor/submissions');
-      setSubmissions(res.data ?? []);
-      if (res.data?.length > 0) setSelected(res.data[0]);
+      const res = await apiFetch<{ success: boolean; data: { submissions: Submission[]; summary: any; pagination: any } }>('/api/exercises/mentor/submissions');
+      const list = res.data?.submissions ?? [];
+      setSubmissions(list);
+      if (list.length > 0) setSelected(list[0]);
     } catch {
       toast.error('Failed to load submissions');
     } finally {

@@ -155,7 +155,7 @@ export default function StudentMessages() {
 
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                 {messages.map((msg) => {
-                  const isMe = msg.senderId === user?.id;
+                  const isMe = msg.senderUserId === user?.id;
                   return (
                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                       {!isMe && (

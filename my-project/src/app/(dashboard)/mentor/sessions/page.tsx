@@ -3,17 +3,16 @@
 import { useEffect, useState, useCallback } from 'react';
 import { CalendarDays, Clock, Users, Video, Plus } from 'lucide-react';
 import {
-  fetchMentorSessions, createMentorSession, cancelSession,
-  type MentorSession,
+  fetchMentorSessions, createMentorSession, cancelSession, fetchMentorDashboard,
+  type MentorSession, type MentorDashboardStudent,
 } from '@/lib/api/mentorship';
-import { fetchAdminUsers, type AdminUser } from '@/lib/api/admin';
 import toast from 'react-hot-toast';
 
 const tabs = ['Upcoming', 'Past'];
 
 export default function MentorSessions() {
   const [sessions, setSessions]       = useState<MentorSession[]>([]);
-  const [students, setStudents]       = useState<AdminUser[]>([]);
+  const [students, setStudents]       = useState<MentorDashboardStudent[]>([]);
   const [loading, setLoading]         = useState(true);
   const [activeTab, setActiveTab]     = useState('Upcoming');
   const [showForm, setShowForm]       = useState(false);
@@ -30,13 +29,15 @@ export default function MentorSessions() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [sess, studs] = await Promise.all([
-        fetchMentorSessions(),
-        fetchAdminUsers('STUDENT'),
+      const [sess, dashboard] = await Promise.all([
+        fetchMentorSessions().catch(() => [] as MentorSession[]),
+        fetchMentorDashboard().catch(() => ({ students: [], summary: { totalStudents: 0, averageScore: null, totalCompletedModules: 0 } })),
       ]);
       setSessions(sess);
-      setStudents(studs);
-      if (studs.length > 0) setForm((f) => ({ ...f, studentId: studs[0].id }));
+      setStudents(dashboard.students);
+      if (dashboard.students.length > 0) {
+        setForm((f) => ({ ...f, studentId: dashboard.students[0].studentId }));
+      }
     } catch {
       toast.error('Failed to load sessions');
     } finally {
@@ -113,7 +114,7 @@ export default function MentorSessions() {
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
               >
                 {students.map((s) => (
-                  <option key={s.id} value={s.id}>{s.fullName ?? s.email}</option>
+                  <option key={s.studentId} value={s.studentId}>{s.fullName}</option>
                 ))}
               </select>
             </div>

@@ -1,24 +1,4 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
-
-function getToken() {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('accessToken');
-}
-
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getToken();
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init?.headers,
-    },
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || json.error || 'Request failed');
-  return json;
-}
+import { apiFetch } from './fetchClient';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -34,6 +14,7 @@ export interface AdminUser {
   gradeLevel: string | null;
   schoolName: string | null;
   expertise: string[] | null;
+  accessStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
 }
 
 export interface AdminOverview {
@@ -111,7 +92,8 @@ export async function fetchAdminUsers(role?: string, search?: string): Promise<A
   const params = new URLSearchParams();
   if (role && role !== 'ALL') params.set('role', role);
   if (search) params.set('search', search);
-  const res = await apiFetch<{ success: boolean; data: AdminUser[] }>(`/api/admin/dashboard/users?${params}`);
+  const query = params.toString();
+  const res = await apiFetch<{ success: boolean; data: AdminUser[] }>(`/api/admin/dashboard/users${query ? `?${query}` : ''}`);
   return res.data;
 }
 
@@ -128,7 +110,8 @@ export async function toggleUserStatus(userId: string): Promise<{ id: string; is
 export async function fetchAdminModules(type?: string): Promise<AdminModule[]> {
   const params = new URLSearchParams();
   if (type && type !== 'ALL') params.set('type', type);
-  const res = await apiFetch<{ success: boolean; data: { modules: AdminModule[] } }>(`/api/modules?${params}`);
+  const query = params.toString();
+  const res = await apiFetch<{ success: boolean; data: { modules: AdminModule[] } }>(`/api/modules${query ? `?${query}` : ''}`);
   return res.data.modules ?? [];
 }
 
@@ -171,8 +154,11 @@ export async function deleteModule(id: string): Promise<void> {
 export async function fetchAdminOpportunities(type?: string): Promise<AdminOpportunity[]> {
   const params = new URLSearchParams();
   if (type && type !== 'ALL') params.set('type', type);
-  const res = await apiFetch<{ success: boolean; data: AdminOpportunity[] }>(`/api/opportunities?${params}`);
-  return res.data;
+  const query = params.toString();
+  const res = await apiFetch<{ success: boolean; data: any }>(`/api/opportunities${query ? `?${query}` : ''}`);
+  // Handle both flat array and wrapped { opportunities: [] } shapes
+  if (Array.isArray(res.data)) return res.data;
+  return res.data?.opportunities ?? res.data?.data ?? [];
 }
 
 export async function createOpportunity(body: {

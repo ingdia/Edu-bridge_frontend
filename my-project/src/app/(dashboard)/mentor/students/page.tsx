@@ -56,8 +56,13 @@ export default function MentorStudents() {
       const dashboard = await fetchMentorDashboard();
       setStudents(dashboard.students);
       if (dashboard.students.length > 0) setSelected(dashboard.students[0]);
-    } catch {
-      toast.error('Failed to load students');
+    } catch (err: any) {
+      if (err.message?.includes('profile not found') || err.message?.includes('400')) {
+        // Mentor profile not set up yet — show empty state
+        setStudents([]);
+      } else {
+        toast.error('Failed to load students');
+      }
     } finally {
       setLoading(false);
     }

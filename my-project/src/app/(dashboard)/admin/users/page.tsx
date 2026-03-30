@@ -186,7 +186,14 @@ export default function AdminUsersPage() {
                           {role.label}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-gray-500">{u.schoolName || '—'}</td>
+                      <td className="px-5 py-3.5 text-gray-500">
+                        {u.schoolName
+                          ? u.schoolName
+                          : u.role === 'MENTOR' && u.accessStatus === 'PENDING'
+                          ? <span className="text-xs text-amber-600 font-medium">Pending approval</span>
+                          : '—'
+                        }
+                      </td>
                       <td className="px-5 py-3.5">
                         <span className={cn(
                           'text-xs font-semibold px-2 py-0.5 rounded-full',

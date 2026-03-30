@@ -154,7 +154,7 @@ export default function MentorMessages() {
 
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
             {messages.map((m) => {
-              const isMe = m.senderId === user?.id;
+              const isMe = m.senderUserId === user?.id;
               return (
                 <div key={m.id} className={cn('flex', isMe ? 'justify-end' : 'justify-start')}>
                   {!isMe && (

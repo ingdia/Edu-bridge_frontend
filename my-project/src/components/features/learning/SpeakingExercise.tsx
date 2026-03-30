@@ -80,11 +80,25 @@ export function SpeakingExercise({ prompt, maxDuration = 60, onComplete }: Speak
     setScore(0);
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (!chunksRef.current.length) return;
+    const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
     const pct = Math.min(100, Math.round((elapsed / Math.max(maxDuration * 0.5, 1)) * 100));
+
+    // Upload to backend
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      const formData = new FormData();
+      formData.append('audio', blob, `speaking_${Date.now()}.webm`);
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/audio/upload`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+    } catch { /* silent — score still saved locally */ }
+
     setScore(pct);
     setState('submitted');
-    logAction('usr_123', 'STUDENT', 'SPEAKING_RECORDED', `Speaking exercise submitted — duration: ${elapsed}s, score: ${pct}%`);
     onComplete?.(pct);
   };
 
@@ -181,7 +195,7 @@ export function SpeakingExercise({ prompt, maxDuration = 60, onComplete }: Speak
                 className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl transition-colors">
                 <RotateCcw className="w-4 h-4" /> Re-record
               </button>
-              <button onClick={submit}
+              <button onClick={() => submit()}
                 className="flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors">
                 <CheckCircle className="w-4 h-4" /> Submit
               </button>

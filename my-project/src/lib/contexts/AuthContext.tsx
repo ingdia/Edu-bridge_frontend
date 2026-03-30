@@ -16,6 +16,7 @@ interface RegisterData {
   role: UserRole;
   fullName?: string;
   gradeLevel?: string;
+  schoolId?: string;
 }
 
 interface AuthContextValue {
@@ -28,7 +29,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 async function apiFetch(path: string, options: RequestInit = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
@@ -41,7 +42,10 @@ async function apiFetch(path: string, options: RequestInit = {}) {
     },
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message || 'Request failed');
+  if (!res.ok) {
+    if (Array.isArray(json)) throw new Error(json.map((e: any) => e.message).join(', '));
+    throw new Error(json.message || json.error || 'Request failed');
+  }
   return json;
 }
 

@@ -1,24 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { GraduationCap, Eye, EyeOff, ArrowRight, CheckCircle, BookOpen, Laptop, Briefcase, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuthContext } from '@/lib/contexts/AuthContext';
+import { fetchSchools, type School } from '@/lib/api/school';
 
 const pillars = [
   { icon: BookOpen, label: 'English Learning' },
   { icon: Laptop, label: 'Digital Literacy' },
   { icon: Briefcase, label: 'Career Guidance' },
-];
-
-const schools = [
-  'GS Ruyenzi',
-  'GS Kimironko',
-  'GS Nyamirambo',
-  'GS Kacyiru',
-  'GS Remera',
-  'Other',
 ];
 
 export default function RegisterPage() {
@@ -28,25 +20,42 @@ export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pendingApproval, setPendingApproval] = useState(false);
+  const [schools, setSchools] = useState<School[]>([]);
   const [form, setForm] = useState({
     fullName: '',
     email: '',
     password: '',
     school: '',
+    schoolId: '',
     gradeLevel: '',
+    nationalId: '',
+    dateOfBirth: '',
     agreed: false,
   });
+
+  useEffect(() => {
+    fetchSchools().then(setSchools).catch(() => {});
+  }, []);
 
   const set = (key: keyof typeof form, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  const passwordValid = (
+    form.password.length >= 8 &&
+    /[A-Z]/.test(form.password) &&
+    /[a-z]/.test(form.password) &&
+    /[0-9]/.test(form.password)
+  );
+
   const passwordStrength = (() => {
     const p = form.password;
     if (p.length === 0) return null;
-    if (p.length < 6) return { label: 'Too short', color: 'bg-red-400', width: 'w-1/4' };
-    if (p.length < 8 || !/[0-9]/.test(p)) return { label: 'Fair', color: 'bg-amber-400', width: 'w-2/4' };
-    if (!/[A-Z]/.test(p)) return { label: 'Good', color: 'bg-emerald-400', width: 'w-3/4' };
-    return { label: 'Strong', color: 'bg-emerald-600', width: 'w-full' };
+    if (p.length < 8) return { label: 'Too short (min 8)', color: 'bg-red-400', width: 'w-1/4' };
+    if (!/[0-9]/.test(p)) return { label: 'Add a number', color: 'bg-amber-400', width: 'w-2/4' };
+    if (!/[a-z]/.test(p)) return { label: 'Add a lowercase letter', color: 'bg-amber-400', width: 'w-2/4' };
+    if (!/[A-Z]/.test(p)) return { label: 'Add an uppercase letter', color: 'bg-emerald-400', width: 'w-3/4' };
+    return { label: 'Strong ✓', color: 'bg-emerald-600', width: 'w-full' };
   })();
 
   const handleSubmit = async () => {
@@ -58,10 +67,47 @@ export default function RegisterPage() {
       role,
       fullName: form.fullName || undefined,
       gradeLevel: form.gradeLevel || undefined,
-    });
-    if (result.error) setError(result.error);
+      schoolId: form.schoolId || undefined,
+      nationalId: form.nationalId || undefined,
+      dateOfBirth: form.dateOfBirth || undefined,
+    } as any);
+    if (result.error) {
+      setError(result.error);
+    } else if (role === 'MENTOR') {
+      setPendingApproval(true);
+    }
     setLoading(false);
   };
+
+  if (pendingApproval) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white px-6">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto">
+            <CheckCircle className="w-8 h-8 text-amber-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Request Submitted!</h1>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Your mentor account has been created and is <span className="font-semibold text-amber-600">pending approval</span> from the administrator.
+              You will receive an email once your access is approved.
+            </p>
+          </div>
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-left space-y-2">
+            <p className="text-xs font-semibold text-amber-700">What happens next?</p>
+            <ul className="text-xs text-amber-600 space-y-1">
+              <li>• The admin will review your registration</li>
+              <li>• You'll be notified by email when approved</li>
+              <li>• Once approved, you can log in normally</li>
+            </ul>
+          </div>
+          <Link href="/login" className="block w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors text-center">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -269,7 +315,7 @@ export default function RegisterPage() {
                 size="lg"
                 className="w-full mt-2"
                 onClick={() => setStep(2)}
-                disabled={!form.fullName || !form.email || form.password.length < 6}
+                disabled={!form.fullName || !form.email || !passwordValid}
               >
                 Continue
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -285,12 +331,20 @@ export default function RegisterPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">School</label>
                     <select
-                      value={form.school}
-                      onChange={(e) => set('school', e.target.value)}
+                      value={form.schoolId}
+                      onChange={(e) => {
+                        const s = schools.find((x) => x.id === e.target.value);
+                        setForm((p) => ({ ...p, schoolId: e.target.value, school: s?.name ?? '' }));
+                      }}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
                     >
                       <option value="">Select your school</option>
-                      {schools.map((s) => <option key={s} value={s}>{s}</option>)}
+                      {schools.length > 0
+                        ? schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)
+                        : ['GS Ruyenzi', 'GS Kimironko', 'GS Nyamirambo', 'GS Kacyiru', 'GS Remera'].map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))
+                      }
                     </select>
                   </div>
 
@@ -313,22 +367,40 @@ export default function RegisterPage() {
                       ))}
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth <span className="text-gray-400 font-normal">(optional)</span></label>
+                      <input type="date" value={form.dateOfBirth}
+                        onChange={(e) => set('dateOfBirth', e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">National ID <span className="text-gray-400 font-normal">(optional)</span></label>
+                      <input type="text" value={form.nationalId} maxLength={16}
+                        onChange={(e) => set('nationalId', e.target.value.replace(/\D/g, ''))}
+                        placeholder="16 digits"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" />
+                    </div>
+                  </div>
                 </>
               )}
 
               {role === 'MENTOR' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Area of expertise</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">School you will mentor at</label>
                   <select
+                    value={form.schoolId}
+                    onChange={(e) => {
+                      const s = schools.find((x) => x.id === e.target.value);
+                      setForm((p) => ({ ...p, schoolId: e.target.value, school: s?.name ?? '' }));
+                    }}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
                   >
-                    <option value="">Select your expertise</option>
-                    <option>English & Communication</option>
-                    <option>Technology & Digital Skills</option>
-                    <option>Career Counseling</option>
-                    <option>University Admissions</option>
-                    <option>Business & Entrepreneurship</option>
+                    <option value="">Select a school</option>
+                    {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
+                  <p className="text-xs text-amber-600 mt-1.5">Your account will be reviewed by the administrator before you can log in.</p>
                 </div>
               )}
 

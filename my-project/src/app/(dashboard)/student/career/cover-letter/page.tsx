@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Eye, EyeOff, Download } from 'lucide-react';
-import { mockUser } from '@/lib/api/mockData';
-import { logAction } from '@/lib/utils/auditLogger';
+import { useAuthContext } from '@/lib/contexts/AuthContext';
 
 const templates = [
   { id: 'scholarship', label: 'Scholarship Application' },
@@ -19,15 +18,16 @@ const templateBodies: Record<string, string> = {
 };
 
 export default function CoverLetterPage() {
+  const { user } = useAuthContext();
   const [template, setTemplate]   = useState('scholarship');
   const [preview, setPreview]     = useState(false);
   const [saved, setSaved]         = useState(false);
 
   const [form, setForm] = useState({
-    senderName:    mockUser.fullName,
-    senderAddress: 'Ruyenzi Sector, Kamonyi District',
-    senderEmail:   mockUser.email,
-    senderPhone:   '+250 788 000 000',
+    senderName:    user?.fullName ?? '',
+    senderAddress: '',
+    senderEmail:   user?.email ?? '',
+    senderPhone:   '',
     recipientName: '',
     recipientOrg:  '',
     date:          new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
@@ -45,7 +45,6 @@ export default function CoverLetterPage() {
 
   const handleSave = () => {
     setSaved(true);
-    logAction(mockUser.id, 'STUDENT', 'CV_SAVED', 'Student saved cover letter draft');
     setTimeout(() => setSaved(false), 3000);
   };
 

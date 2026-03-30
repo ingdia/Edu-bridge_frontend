@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Plus, Trash2, Download, Eye } from 'lucide-react';
-import { mockUser } from '@/lib/api/mockData';
-import { logAction } from '@/lib/utils/auditLogger';
+import { useAuthContext } from '@/lib/contexts/AuthContext';
 
 const steps = ['Personal Info', 'Education', 'Skills', 'Experience', 'References'];
 
@@ -14,24 +13,25 @@ type Experience = { id: string; title: string; org: string; period: string; desc
 type Reference = { id: string; name: string; role: string; contact: string };
 
 export default function CVBuilderPage() {
+  const { user } = useAuthContext();
   const [step, setStep]     = useState(0);
   const [saved, setSaved]   = useState(false);
   const [preview, setPreview] = useState(false);
 
   // Personal info
   const [personal, setPersonal] = useState({
-    fullName:  mockUser.fullName,
-    email:     mockUser.email,
-    phone:     '+250 788 000 000',
-    address:   'Ruyenzi Sector, Kamonyi District',
-    school:    mockUser.school,
-    grade:     mockUser.gradeLevel,
+    fullName:  user?.fullName ?? '',
+    email:     user?.email ?? '',
+    phone:     '',
+    address:   '',
+    school:    user?.school ?? '',
+    grade:     user?.gradeLevel ?? '',
     summary:   '',
   });
 
   // Education
   const [education, setEducation] = useState<Education[]>([
-    { id: 'edu_1', school: mockUser.school, level: 'Senior Secondary', year: '2026', grade: '85%' },
+    { id: 'edu_1', school: user?.school ?? '', level: 'Senior Secondary', year: '2026', grade: '' },
   ]);
 
   // Skills
@@ -46,13 +46,10 @@ export default function CVBuilderPage() {
   const [experience, setExperience] = useState<Experience[]>([]);
 
   // References
-  const [references, setReferences] = useState<Reference[]>([
-    { id: 'ref_1', name: 'Dr. Alice Ingabire', role: 'Mentor, EDU-Bridge', contact: 'alice@edubridge.rw' },
-  ]);
+  const [references, setReferences] = useState<Reference[]>([]);
 
   const handleSave = () => {
     setSaved(true);
-    logAction(mockUser.id, 'STUDENT', 'CV_SAVED', 'Student saved CV draft');
     setTimeout(() => setSaved(false), 3000);
   };
 

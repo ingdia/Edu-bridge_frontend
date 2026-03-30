@@ -51,6 +51,8 @@ const mentorNav = [
 const adminNav = [
   { href: '/admin',                  label: 'Overview',       icon: LayoutDashboard, exact: true },
   { href: '/admin/users',            label: 'Users',          icon: Users },
+  { href: '/admin/schools',          label: 'Schools',        icon: GraduationCap },
+  { href: '/admin/mentors',          label: 'Mentor Requests',icon: UserCircle },
   { href: '/admin/modules',          label: 'Modules',        icon: BookOpen },
   { href: '/admin/analytics',        label: 'Analytics',      icon: TrendingUp },
   { href: '/admin/opportunities',    label: 'Opportunities',  icon: Briefcase },
