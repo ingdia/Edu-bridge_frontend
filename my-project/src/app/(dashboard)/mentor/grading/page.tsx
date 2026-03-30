@@ -24,15 +24,13 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 interface Submission {
   id: string;
-  status: 'pending' | 'evaluated';
+  status: 'PENDING' | 'EVALUATED' | 'GRADED';
   score: number | null;
   feedback: string | null;
   submittedAt: string;
-  exerciseType: string;
-  submissionContent: any;
-  moduleId: string;
+  textAnswer?: string;
   student: { fullName: string; gradeLevel?: string };
-  module: { id: string; title: string; type: string };
+  exercise: { title: string; maxScore: number; module: { title: string } };
 }
 
 export default function MentorGrading() {
@@ -225,7 +223,7 @@ export default function MentorGrading() {
                     </p>
                     <p className="text-xs text-emerald-600">Submitted {new Date(selected.submittedAt).toLocaleDateString()}</p>
                     {selected.feedback && (
-                      <p className="text-xs text-emerald-700 mt-1 italic">"{selected.feedback}"</p>
+                      <p className="text-xs text-emerald-700 mt-1 italic">&quot;{selected.feedback}&quot;</p>
                     )}
                   </div>
                 </div>
