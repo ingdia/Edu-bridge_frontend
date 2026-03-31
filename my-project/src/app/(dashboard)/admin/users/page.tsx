@@ -191,6 +191,8 @@ export default function AdminUsersPage() {
                           ? u.schoolName
                           : u.role === 'MENTOR' && u.accessStatus === 'PENDING'
                           ? <span className="text-xs text-amber-600 font-medium">Pending approval</span>
+                          : u.role === 'STUDENT' && u.accessStatus === 'PENDING'
+                          ? <span className="text-xs text-amber-600 font-medium">Awaiting mentor</span>
                           : '—'
                         }
                       </td>

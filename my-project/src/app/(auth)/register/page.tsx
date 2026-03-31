@@ -6,6 +6,7 @@ import { GraduationCap, Eye, EyeOff, ArrowRight, CheckCircle, BookOpen, Laptop, 
 import { Button } from '@/components/ui/Button';
 import { useAuthContext } from '@/lib/contexts/AuthContext';
 import { fetchSchools, type School } from '@/lib/api/school';
+import { fetchSchoolMentors, sendMentorRequest, type MentorOption } from '@/lib/api/studentRequest';
 
 const pillars = [
   { icon: BookOpen, label: 'English Learning' },
@@ -22,6 +23,12 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [pendingApproval, setPendingApproval] = useState(false);
   const [schools, setSchools] = useState<School[]>([]);
+  const [mentors, setMentors] = useState<MentorOption[]>([]);
+  const [selectedMentorId, setSelectedMentorId] = useState('');
+  const [requestNote, setRequestNote] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -75,11 +82,31 @@ export default function RegisterPage() {
       setError(result.error);
     } else if (role === 'MENTOR') {
       setPendingApproval(true);
+    } else if (role === 'STUDENT') {
+      setRegisteredEmail(form.email);
+      setPendingApproval(true);
+      // Fetch mentors at the selected school
+      if (form.schoolId) {
+        fetchSchoolMentors().then(setMentors).catch(() => {});
+      }
     }
     setLoading(false);
   };
 
-  if (pendingApproval) {
+  const handleSendRequest = async () => {
+    if (!selectedMentorId) return;
+    setRequestLoading(true);
+    try {
+      await sendMentorRequest(selectedMentorId, requestNote || undefined);
+      setRequestSent(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send request');
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  if (pendingApproval && role === 'MENTOR') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white px-6">
         <div className="max-w-md w-full text-center space-y-6">
@@ -89,8 +116,8 @@ export default function RegisterPage() {
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Request Submitted!</h1>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Your mentor account has been created and is <span className="font-semibold text-amber-600">pending approval</span> from the administrator.
-              You will receive an email once your access is approved.
+              Your mentor account is <span className="font-semibold text-amber-600">pending approval</span> from the administrator.
+              You will be notified once approved.
             </p>
           </div>
           <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-left space-y-2">
@@ -102,6 +129,86 @@ export default function RegisterPage() {
             </ul>
           </div>
           <Link href="/login" className="block w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors text-center">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (pendingApproval && role === 'STUDENT') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white px-6 py-12">
+        <div className="max-w-md w-full space-y-6">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-emerald-600" />
+            </div>
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Account Created!</h1>
+            <p className="text-gray-500 text-sm">
+              Please verify your email, then request a mentor from your school to activate your account.
+            </p>
+          </div>
+
+          {requestSent ? (
+            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 text-center space-y-3">
+              <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto" />
+              <p className="text-sm font-semibold text-emerald-800">Mentor request sent!</p>
+              <p className="text-xs text-emerald-600">Your mentor will review your request and approve your account. You'll be able to log in once approved.</p>
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 space-y-4">
+              <h2 className="text-sm font-semibold text-gray-900">Request a Mentor at Your School</h2>
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
+                  <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+                </div>
+              )}
+              {mentors.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-400">No approved mentors at your school yet.</p>
+                  <p className="text-xs text-gray-400 mt-1">The admin will assign a mentor to your school soon.</p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Select a Mentor</label>
+                    <select value={selectedMentorId} onChange={(e) => setSelectedMentorId(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+                      <option value="">Choose a mentor</option>
+                      {mentors.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.user.email.split('@')[0]} — {m.school?.name ?? 'School'}
+                          {m.expertise.length > 0 ? ` (${m.expertise.slice(0, 2).join(', ')})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Message (optional)</label>
+                    <textarea rows={2} value={requestNote} onChange={(e) => setRequestNote(e.target.value)}
+                      placeholder="Introduce yourself briefly..."
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+                  </div>
+                  <button onClick={handleSendRequest} disabled={!selectedMentorId || requestLoading}
+                    className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl disabled:opacity-60 transition-colors">
+                    {requestLoading ? 'Sending…' : 'Send Request to Mentor'}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-1">
+            <p className="text-xs font-semibold text-amber-700">What happens next?</p>
+            <ul className="text-xs text-amber-600 space-y-1">
+              <li>• Verify your email address</li>
+              <li>• Your mentor will approve your request</li>
+              <li>• Once approved, you can log in and start learning</li>
+            </ul>
+          </div>
+
+          <Link href="/login" className="block w-full py-3 border border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors text-center">
             Back to Login
           </Link>
         </div>

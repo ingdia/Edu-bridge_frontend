@@ -1,21 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Users, CalendarDays, ClipboardCheck, TrendingUp, Clock, Star } from 'lucide-react';
+import Link from 'next/link';
+import { Users, CalendarDays, ClipboardCheck, TrendingUp, Clock, Star, AlertCircle } from 'lucide-react';
 import { fetchMentorDashboard, fetchMentorSessions, type MentorDashboard, type MentorSession } from '@/lib/api/mentorship';
+import { fetchStudentRequests } from '@/lib/api/studentRequest';
 import { useAuthContext } from '@/lib/contexts/AuthContext';
 
 export default function MentorOverview() {
   const { user } = useAuthContext();
   const [dashboard, setDashboard] = useState<MentorDashboard | null>(null);
   const [sessions, setSessions]   = useState<MentorSession[]>([]);
+  const [pendingRequests, setPendingRequests] = useState(0);
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
-    Promise.allSettled([fetchMentorDashboard(), fetchMentorSessions('SCHEDULED')])
-      .then(([dashRes, sessRes]) => {
+    Promise.allSettled([fetchMentorDashboard(), fetchMentorSessions('SCHEDULED'), fetchStudentRequests()])
+      .then(([dashRes, sessRes, reqRes]) => {
         if (dashRes.status === 'fulfilled') setDashboard(dashRes.value);
         if (sessRes.status === 'fulfilled') setSessions(sessRes.value.slice(0, 3));
+        if (reqRes.status === 'fulfilled') setPendingRequests(reqRes.value.filter((r) => r.status === 'PENDING').length);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -40,6 +44,23 @@ export default function MentorOverview() {
         <h1 className="text-xl font-bold text-gray-900">Welcome back, {firstName}</h1>
         <p className="text-sm text-gray-500 mt-0.5">Here's what's happening with your students today.</p>
       </div>
+
+      {/* Pending student requests banner */}
+      {pendingRequests > 0 && (
+        <Link href="/mentor/requests"
+          className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-colors">
+          <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5 text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-amber-800">
+              {pendingRequests} student{pendingRequests > 1 ? 's' : ''} waiting for your approval
+            </p>
+            <p className="text-xs text-amber-600">Review and approve student access requests</p>
+          </div>
+          <span className="text-xs font-semibold text-amber-700 hover:text-amber-900">Review →</span>
+        </Link>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

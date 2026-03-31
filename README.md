@@ -9,7 +9,7 @@
 
 ---
 
-## 🔗 Repositories
+## Repositories
 
 | Layer | Repository |
 |-------|-----------|
@@ -18,7 +18,7 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 EDU-Bridge is a full-stack digital learning and mentorship platform designed for Senior 4 students at public day secondary schools in Rwanda, starting with **GS Ruyenzi**. It addresses three critical gaps:
 
@@ -30,9 +30,9 @@ The platform serves three user roles — **Students**, **Mentors**, and **Admini
 
 ---
 
-## ✨ Features
+##  Features
 
-### 👩‍🎓 Student Dashboard
+###  Student Dashboard
 - Interactive learning modules (listening, speaking, reading, writing, digital literacy)
 - Real-time progress tracking with completion rates and scores
 - Mentorship session scheduling and management
@@ -40,7 +40,7 @@ The platform serves three user roles — **Students**, **Mentors**, and **Admini
 - Secure messaging with mentors and administrators
 - In-app notifications
 
-### 👨‍🏫 Mentor Dashboard
+###  Mentor Dashboard
 - School-based student management (admin assigns mentor to a school)
 - Student progress monitoring with module-level breakdown
 - Exercise grading and feedback submission
@@ -48,7 +48,7 @@ The platform serves three user roles — **Students**, **Mentors**, and **Admini
 - Messaging with students and administrators
 - Course assignments (admin assigns specific modules to each mentor)
 
-### 🛡️ Admin Dashboard
+###  Admin Dashboard
 - School registration and management
 - Mentor access request approval/rejection with school assignment
 - Course assignment to mentors
@@ -61,7 +61,7 @@ The platform serves three user roles — **Students**, **Mentors**, and **Admini
 
 ---
 
-## 🏗️ Tech Stack
+##  Tech Stack
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
@@ -74,7 +74,7 @@ The platform serves three user roles — **Students**, **Mentors**, and **Admini
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 src/
@@ -107,7 +107,7 @@ src/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -155,7 +155,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔐 Authentication Flow
+##  Authentication Flow
 
 1. **Register** — Students and mentors register via `/register`. Mentors are set to **inactive** pending admin approval.
 2. **Email Verification** — Users verify their email before logging in.
@@ -173,7 +173,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🌐 Backend API
+##  Backend API
 
 This frontend connects to the **EDU-Bridge Backend** REST API.
 
@@ -197,7 +197,7 @@ This frontend connects to the **EDU-Bridge Backend** REST API.
 
 ---
 
-## 👥 User Roles & Access
+##  User Roles & Access
 
 | Route | Role | Description |
 |-------|------|-------------|
@@ -209,7 +209,7 @@ Route protection is handled by `src/middleware.ts` — unauthenticated users are
 
 ---
 
-## 🏫 School & Mentor Assignment Flow
+##  School & Mentor Assignment Flow
 
 1. Admin registers schools via `/admin/schools`
 2. Mentor registers → account created as **inactive**, `accessStatus: PENDING`
@@ -220,7 +220,7 @@ Route protection is handled by `src/middleware.ts` — unauthenticated users are
 
 ---
 
-## 🚢 Deployment
+##  Deployment
 
 The frontend is designed to deploy on **Vercel**:
 
@@ -242,7 +242,7 @@ NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/your-feature`
@@ -252,13 +252,13 @@ NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 
 ---
 
-## 👩‍💻 Author
+##  Author
 
 **Diane INGABIRE**
 African Leadership University — January 2026
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the [ISC License](LICENSE).

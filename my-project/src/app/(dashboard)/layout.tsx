@@ -41,11 +41,12 @@ const studentNav = [
 ];
 
 const mentorNav = [
-  { href: '/mentor',           label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/mentor/students',  label: 'Students', icon: Users },
-  { href: '/mentor/sessions',  label: 'Sessions', icon: CalendarDays },
-  { href: '/mentor/grading',   label: 'Grading',  icon: ClipboardCheck },
-  { href: '/mentor/messages',  label: 'Messages', icon: MessageSquare },
+  { href: '/mentor',           label: 'Overview',  icon: LayoutDashboard, exact: true },
+  { href: '/mentor/requests',  label: 'Requests',  icon: AlertCircle },
+  { href: '/mentor/students',  label: 'Students',  icon: Users },
+  { href: '/mentor/sessions',  label: 'Sessions',  icon: CalendarDays },
+  { href: '/mentor/grading',   label: 'Grading',   icon: ClipboardCheck },
+  { href: '/mentor/messages',  label: 'Messages',  icon: MessageSquare },
 ];
 
 const adminNav = [
